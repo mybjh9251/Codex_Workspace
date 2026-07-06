@@ -1,0 +1,15 @@
+bin/
+obj/
+artifacts/
+Output/
+Download/
+
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+runtime/python/
+**/packages/
+**/requirements.lock.txt
+**/download-report.csv

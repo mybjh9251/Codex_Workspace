@@ -1,0 +1,137 @@
+<Window x:Class="PythonPackageDownloaderWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Python Package Downloader" Height="820" Width="1180" MinHeight="720" MinWidth="1040"
+        Background="#F6F7F9">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Text="Python Package Downloader" FontSize="24" FontWeight="SemiBold" Foreground="#20242A" />
+                <TextBlock x:Name="RuntimeStatusTextBlock" Margin="0,4,0,0" Foreground="#5D6673" />
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="DownloadButton" Content="Download" Width="120" Height="34" Margin="8,0,0,0" Click="DownloadButton_Click" />
+                <Button x:Name="CancelButton" Content="Cancel" Width="90" Height="34" Margin="8,0,0,0" IsEnabled="False" Click="CancelButton_Click" />
+                <Button x:Name="RetryFailedButton" Content="Retry Failed" Width="110" Height="34" Margin="8,0,0,0" IsEnabled="False" Click="RetryFailedButton_Click" />
+            </StackPanel>
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="White" BorderBrush="#D9DEE7" BorderThickness="1" CornerRadius="6" Padding="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="1. Package Input" FontSize="16" FontWeight="SemiBold" Foreground="#20242A" />
+                        <TextBox x:Name="PackageInputTextBox" Margin="0,8,0,4" Height="118" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                 Text="requests" FontFamily="Consolas" TextWrapping="NoWrap" />
+                        <TextBlock Text="One PEP 508 requirement per line. Empty lines and lines starting with # are ignored." Foreground="#667085" TextWrapping="Wrap" />
+
+                        <Separator Margin="0,14,0,14" />
+
+                        <TextBlock Text="2. Target Environment" FontSize="16" FontWeight="SemiBold" Foreground="#20242A" />
+                        <UniformGrid Columns="2" Margin="0,8,0,0">
+                            <TextBlock Text="Target OS" VerticalAlignment="Center" />
+                            <ComboBox x:Name="TargetOsComboBox" SelectionChanged="TargetSelection_Changed" />
+                            <TextBlock Text="Python Version" Margin="0,8,0,0" VerticalAlignment="Center" />
+                            <ComboBox x:Name="PythonVersionComboBox" Margin="0,8,0,0" SelectionChanged="TargetSelection_Changed" />
+                            <TextBlock Text="Architecture" Margin="0,8,0,0" VerticalAlignment="Center" />
+                            <ComboBox x:Name="ArchitectureComboBox" Margin="0,8,0,0" SelectionChanged="TargetSelection_Changed" />
+                            <TextBlock Text="Platform Tag" Margin="0,8,0,0" VerticalAlignment="Center" />
+                            <ComboBox x:Name="PlatformTagComboBox" Margin="0,8,0,0" IsEditable="True" />
+                            <TextBlock Text="ABI" Margin="0,8,0,0" VerticalAlignment="Center" />
+                            <ComboBox x:Name="AbiComboBox" Margin="0,8,0,0" IsEditable="True" />
+                        </UniformGrid>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Use 1st Recommendation" Width="174" Click="UseFirstRecommendation_Click" />
+                            <Button Content="Use 2nd Recommendation" Width="174" Margin="8,0,0,0" Click="UseSecondRecommendation_Click" />
+                        </StackPanel>
+                        <TextBlock x:Name="RecommendationTextBlock" Margin="0,8,0,0" Foreground="#667085" TextWrapping="Wrap" />
+
+                        <Separator Margin="0,14,0,14" />
+
+                        <TextBlock Text="3. Output and Source" FontSize="16" FontWeight="SemiBold" Foreground="#20242A" />
+                        <TextBlock Text="Output Folder" Margin="0,8,0,2" />
+                        <DockPanel>
+                            <Button Content="Browse" DockPanel.Dock="Right" Width="78" Margin="8,0,0,0" Click="BrowseOutputButton_Click" />
+                            <TextBox x:Name="OutputFolderTextBox" />
+                        </DockPanel>
+                        <TextBlock Text="Index URL" Margin="0,10,0,2" />
+                        <TextBox x:Name="IndexUrlTextBox" Text="https://pypi.org/simple" />
+                        <CheckBox x:Name="OverwriteCheckBox" Content="Overwrite existing wheel files" Margin="0,10,0,0" />
+                        <CheckBox x:Name="NoDependenciesCheckBox" Content="No dependencies" Margin="0,6,0,0" />
+
+                        <Separator Margin="0,14,0,14" />
+
+                        <TextBlock Text="Result" FontSize="16" FontWeight="SemiBold" Foreground="#20242A" />
+                        <TextBlock x:Name="OverallStatusTextBlock" Text="Ready" Margin="0,8,0,0" FontWeight="SemiBold" />
+                        <TextBlock x:Name="CountStatusTextBlock" Margin="0,4,0,0" Foreground="#667085" />
+                        <ProgressBar x:Name="DownloadProgressBar" Height="16" Margin="0,10,0,0" Minimum="0" Maximum="1" />
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="Open Output Folder" Width="138" Click="OpenOutputFolder_Click" />
+                            <Button Content="Open Report" Width="100" Margin="8,0,0,0" Click="OpenReport_Click" />
+                        </StackPanel>
+                        <Button Content="Copy Offline Install Command" Height="30" Margin="0,8,0,0" Click="CopyInstallCommand_Click" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="White" BorderBrush="#D9DEE7" BorderThickness="1" CornerRadius="6" Padding="10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Download Report" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <DataGrid x:Name="ReportDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Package" Binding="{Binding Package}" Width="140" />
+                                <DataGridTextColumn Header="Requested" Binding="{Binding RequestedSpec}" Width="170" />
+                                <DataGridTextColumn Header="Version" Binding="{Binding ResolvedVersion}" Width="90" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                                <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="190" />
+                                <DataGridTextColumn Header="Target" Binding="{Binding TargetSummary}" Width="160" />
+                                <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Background="White" BorderBrush="#D9DEE7" BorderThickness="1" CornerRadius="6" Padding="10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Log" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBox x:Name="LogTextBox" Grid.Row="1" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Margin="0,12,0,0" Foreground="#667085"
+                   Text="Output contains packages/, requirements.lock.txt, download-report.csv, and a target-specific offline install script." />
+    </Grid>
+</Window>

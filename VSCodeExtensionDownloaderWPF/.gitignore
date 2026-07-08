@@ -1,0 +1,16 @@
+bin/
+obj/
+artifacts/
+Output/
+Download/
+
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+**/extensions/
+**/vscode-extensions.lock.json
+**/download-report.csv
+**/install-offline.ps1
+**/install-offline.sh

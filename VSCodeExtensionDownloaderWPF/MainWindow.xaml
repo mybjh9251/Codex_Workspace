@@ -1,0 +1,185 @@
+<Window x:Class="VSCodeExtensionDownloaderWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="VS Code Extension Downloader" Height="820" Width="1220" MinHeight="720" MinWidth="1080"
+        Background="#1E1E1E" Foreground="#CCCCCC">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#252526" />
+            <Setter Property="Foreground" Value="#D4D4D4" />
+            <Setter Property="BorderBrush" Value="#3C3C3C" />
+            <Setter Property="CaretBrush" Value="#D4D4D4" />
+            <Setter Property="Padding" Value="8,5" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#252526" />
+            <Setter Property="Foreground" Value="#202020" />
+            <Setter Property="Padding" Value="6,4" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="MinHeight" Value="30" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="560" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                <TextBlock Text="EXTENSIONS: MARKETPLACE" FontSize="16" Foreground="#DCDCDC" VerticalAlignment="Center" />
+                <Button Content="Refresh" DockPanel.Dock="Right" Width="82" Click="SearchButton_Click" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Margin="0,0,0,12">
+                <Button Content="Search" DockPanel.Dock="Right" Width="82" Margin="8,0,0,0" Click="SearchButton_Click" />
+                <TextBox x:Name="SearchTextBox" Text="python" FontSize="18" KeyDown="SearchTextBox_KeyDown" />
+            </DockPanel>
+
+            <ListBox x:Name="SearchResultsListBox" Grid.Row="2" Background="#1E1E1E" BorderThickness="0"
+                     ItemsSource="{Binding SearchResults}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="0,8,0,8" BorderBrush="#2D2D30" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="74" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="116" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="56" Height="56" Background="#2D2D30" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <Image Source="{Binding IconUrl}" Stretch="Uniform" />
+                                </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="18" FontWeight="SemiBold" Foreground="#E8E8E8" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding ShortDescription}" FontSize="16" Foreground="#A7A7A7" TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                        <TextBlock Text="{Binding PublisherDisplayName}" FontWeight="SemiBold" Foreground="#B7B7B7" />
+                                        <TextBlock Text="  Verified" Foreground="#4FC1FF" FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ExtensionId}" Foreground="#858585" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding InstallsText}" Foreground="#DCDCDC" HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding RatingText}" Foreground="#DCDCDC" HorizontalAlignment="Right" Margin="0,4,0,8" />
+                                    <Button Content="Add to Bundle" Tag="{Binding}" Click="AddToBundle_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="170" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="150" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#252526" Padding="12" BorderBrush="#3C3C3C" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="145" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="130" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="VS Code Version" VerticalAlignment="Center" />
+                    <TextBox x:Name="VSCodeVersionTextBox" Grid.Column="1" TextChanged="Settings_Changed" />
+                    <ComboBox x:Name="TargetPlatformComboBox" Grid.Column="2" Margin="10,0,0,0" SelectionChanged="Settings_Changed" />
+                    <Button Grid.Column="3" Content="Detect code" Margin="10,0,0,0" Click="DetectCodeVersion_Click" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Background="#252526" Padding="12" BorderBrush="#3C3C3C" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="Bundle Queue" FontSize="16" FontWeight="SemiBold" />
+                        <Button Content="Remove Selected" DockPanel.Dock="Right" Click="RemoveSelected_Click" />
+                    </DockPanel>
+                    <DataGrid x:Name="QueueDataGrid" Grid.Row="1" ItemsSource="{Binding BundleItems}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Extension ID" Binding="{Binding ExtensionId}" Width="190" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}" Width="*" />
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding PublisherDisplayName}" Width="130" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding DependencyType}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="3" Background="#252526" Padding="12" BorderBrush="#3C3C3C" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="DownloadButton" Content="Download Bundle" Width="130" Click="DownloadButton_Click" />
+                            <Button x:Name="CancelButton" Content="Cancel" Width="88" Margin="8,0,0,0" IsEnabled="False" Click="CancelButton_Click" />
+                            <Button Content="Open Output" Width="104" Margin="8,0,0,0" Click="OpenOutput_Click" />
+                        </StackPanel>
+                        <TextBlock x:Name="OverallStatusTextBlock" Text="Ready" DockPanel.Dock="Right" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <DataGrid x:Name="ReportDataGrid" Grid.Row="1" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Extension ID" Binding="{Binding ExtensionId}" Width="180" />
+                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="100" />
+                            <DataGridTextColumn Header="Target" Binding="{Binding TargetPlatform}" Width="95" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding DependencyType}" Width="100" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" />
+                            <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="180" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="5" Background="#252526" Padding="12" BorderBrush="#3C3C3C" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Log" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBox x:Name="LogTextBox" Grid.Row="1" IsReadOnly="True" Background="#1E1E1E" Foreground="#CCCCCC"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

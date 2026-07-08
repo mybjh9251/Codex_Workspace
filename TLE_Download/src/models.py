@@ -36,7 +36,7 @@ class SpaceTrackCredentials:
 @dataclass(frozen=True)
 class AppConfig:
     project_root: Path
-    input_excel_path: Path
+    input_satellite_path: Path
     profile_path: Path
     log_dir: Path
     sheet_name: str

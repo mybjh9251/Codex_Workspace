@@ -16,10 +16,13 @@ _PLACEHOLDER_VALUES = {
 }
 
 
-def build_default_config(project_root: Path) -> AppConfig:
+def build_default_config(
+    project_root: Path,
+    input_path: Path | None = None,
+) -> AppConfig:
     return AppConfig(
         project_root=project_root,
-        input_excel_path=project_root / "Sat_List.xlsx",
+        input_satellite_path=_resolve_input_path(project_root, input_path),
         profile_path=project_root / "profile.xml",
         log_dir=project_root / "logs",
         sheet_name="Sheet1",
@@ -28,6 +31,19 @@ def build_default_config(project_root: Path) -> AppConfig:
         request_timeout_seconds=30,
         user_agent="TLE_Download/1.0",
     )
+
+
+def _resolve_input_path(project_root: Path, input_path: Path | None) -> Path:
+    if input_path is not None:
+        if input_path.is_absolute():
+            return input_path
+        return project_root / input_path
+
+    xlsx_path = project_root / "Sat_List.xlsx"
+    if xlsx_path.exists():
+        return xlsx_path
+
+    return project_root / "Sat_List.csv"
 
 
 def load_profile(

@@ -92,6 +92,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build_exe.ps1
   - `SAT_Name`
   - `NORAD ID`
 
+## CSV 입력 지원
+
+- 기본 우선순위는 `Sat_List.xlsx`가 1순위, `Sat_List.csv`가 2순위다.
+- 두 파일이 모두 있으면 `python main.py`는 `Sat_List.xlsx`를 사용한다.
+- CSV를 강제로 사용하려면 `python main.py --input .\Sat_List.csv`로 실행한다.
+- 패키징된 실행 파일도 같은 규칙을 사용하며, `TLE_Download.exe --input .\Sat_List.csv`로 CSV를 명시할 수 있다.
+- CSV 입력 파일도 `SAT_Name`, `NORAD ID` 헤더가 필요하다.
+- CSV 구분자는 쉼표, 탭, 세미콜론을 자동 감지한다.
+
 추가 열이 있어도 무시된다.
 
 ## Git 관리 기준

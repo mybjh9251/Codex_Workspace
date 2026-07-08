@@ -8,7 +8,7 @@
 이 폴더 안에 아래 파일이 있어야 한다.
 
 - `TLE_Download.exe`
-- `Sat_List.xlsx`
+- `Sat_List.xlsx` 또는 `Sat_List.csv`
 
 `profile.xml`은 선택 사항이다.
 `Space-Track`을 사용하려면 `profile.template.xml`을 복사해 `profile.xml`로 이름을 바꾼 뒤 계정 정보를 채운다.
@@ -39,6 +39,14 @@
 - 필수 헤더:
   - `SAT_Name`
   - `NORAD ID`
+
+## CSV 입력 지원
+
+- 기본 우선순위는 `Sat_List.xlsx`가 1순위, `Sat_List.csv`가 2순위다.
+- 두 파일이 모두 있으면 `TLE_Download.exe`는 `Sat_List.xlsx`를 사용한다.
+- CSV를 강제로 사용하려면 `TLE_Download.exe --input .\Sat_List.csv`로 실행한다.
+- CSV 입력 파일도 `SAT_Name`, `NORAD ID` 헤더가 필요하다.
+- CSV 구분자는 쉼표, 탭, 세미콜론을 자동 감지한다.
 
 추가 열이 있어도 무시된다.
 

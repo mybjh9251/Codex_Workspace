@@ -10,13 +10,13 @@ from models import SatelliteRequest, TleLines, TleRecord
 from writer import timestamped_output_path, write_tle_output
 
 
-def run(project_root: Path) -> int:
-    config = build_default_config(project_root)
+def run(project_root: Path, input_path: Path | None = None) -> int:
+    config = build_default_config(project_root, input_path=input_path)
     output_path = timestamped_output_path(project_root)
     logger, log_path = setup_daily_logger(config.log_dir)
 
     logger.info("Starting TLE download run.")
-    logger.info("Input file: %s", config.input_excel_path)
+    logger.info("Input file: %s", config.input_satellite_path)
     logger.info("Output file: %s", output_path)
 
     try:
@@ -29,7 +29,7 @@ def run(project_root: Path) -> int:
 
         if not requests:
             write_tle_output(output_path, [])
-            logger.warning("No valid rows were found in the Excel file.")
+            logger.warning("No valid rows were found in the input file.")
             print(_build_summary(0, 0, [], log_path))
             return 0
 

@@ -22,10 +22,22 @@ try {
     Write-Host "Python executable: $executable"
 
     Write-Host "==> Checking required files"
-    foreach ($path in @("main.py", "Sat_List.xlsx", "profile.template.xml", "requirements.txt")) {
+    foreach ($path in @("main.py", "profile.template.xml", "requirements.txt")) {
         if (-not (Test-Path -LiteralPath $path)) {
             throw "Missing required file: $path"
         }
+    }
+
+    $xlsxInput = "Sat_List.xlsx"
+    $csvInput = "Sat_List.csv"
+    if (Test-Path -LiteralPath $xlsxInput) {
+        Write-Host "Default input file: $xlsxInput"
+    }
+    elseif (Test-Path -LiteralPath $csvInput) {
+        Write-Host "Default input file: $csvInput"
+    }
+    else {
+        throw "Missing required input file: Sat_List.xlsx or Sat_List.csv"
     }
 
     Write-Host "==> Compiling source files"

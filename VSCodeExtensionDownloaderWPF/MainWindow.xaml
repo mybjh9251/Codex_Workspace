@@ -156,12 +156,21 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <DockPanel Margin="0,0,0,8">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                             <Button x:Name="DownloadButton" Content="Download Bundle" Width="130" Click="DownloadButton_Click" />
                             <Button x:Name="CancelButton" Content="Cancel" Width="88" Margin="8,0,0,0" IsEnabled="False" Click="CancelButton_Click" />
                             <Button Content="Open Output" Width="104" Margin="8,0,0,0" Click="OpenOutput_Click" />
                         </StackPanel>
-                        <TextBlock x:Name="OverallStatusTextBlock" Text="Ready" DockPanel.Dock="Right" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <StackPanel DockPanel.Dock="Right" Width="330">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Border x:Name="StatusBadgeBorder" Background="#3C3C3C" CornerRadius="4" Padding="8,3">
+                                    <TextBlock x:Name="OverallStatusTextBlock" Text="Ready" FontWeight="SemiBold" Foreground="#E8E8E8" />
+                                </Border>
+                                <TextBlock x:Name="ProgressTextBlock" Text="" Margin="10,2,0,0" Foreground="#CCCCCC" />
+                            </StackPanel>
+                            <ProgressBar x:Name="DownloadProgressBar" Height="8" Margin="0,6,0,0" Minimum="0" Maximum="1" Value="0" />
+                            <TextBlock x:Name="CurrentDownloadTextBlock" Text="" Margin="0,4,0,0" Foreground="#A7A7A7" TextAlignment="Right" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
                     </DockPanel>
                     <DataGrid x:Name="ReportDataGrid" Grid.Row="1" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto">

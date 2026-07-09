@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -219,7 +220,10 @@ public partial class MainWindow : Window
         DownloadButton.IsEnabled = false;
         CancelButton.IsEnabled = true;
         ReportRows.Clear();
-        OverallStatusTextBlock.Text = "Downloading";
+        SetOverallStatus("Downloading");
+        DownloadProgressBar.Value = 0;
+        ProgressTextBlock.Text = "Preparing";
+        CurrentDownloadTextBlock.Text = "Resolving extension dependencies";
 
         var target = TargetPlatformComboBox.SelectedItem as string ?? "win32-x64";
         var vscodeVersion = VSCodeVersionTextBox.Text.Trim();
@@ -230,11 +234,17 @@ public partial class MainWindow : Window
         try
         {
             await ExpandDependenciesAsync(_downloadCts.Token);
-            foreach (var item in BundleItems.ToList())
+            var items = BundleItems.ToList();
+            DownloadProgressBar.Maximum = Math.Max(items.Count, 1);
+            for (var index = 0; index < items.Count; index++)
             {
+                var item = items[index];
+                ProgressTextBlock.Text = $"{index + 1} / {items.Count}";
+                CurrentDownloadTextBlock.Text = $"Current: {item.ExtensionId}";
                 if (_downloadCts.IsCancellationRequested)
                 {
                     AddReport(item, target, vscodeVersion, "Canceled", string.Empty, string.Empty, "Canceled before download.");
+                    DownloadProgressBar.Value = index + 1;
                     continue;
                 }
 
@@ -247,21 +257,23 @@ public partial class MainWindow : Window
                 var url = BuildVsixUrl(item.PublisherName, item.ExtensionName, item.Version, target, includeTarget: true);
                 var fileName = SafeFileName($"{item.ExtensionId}-{item.Version}-{target}.vsix");
                 var filePath = Path.Combine(extensionsFolder, fileName);
+                var row = AddReport(item, target, vscodeVersion, "Downloading", string.Empty, url, $"Downloading {item.ExtensionId}.");
                 try
                 {
                     var finalUrl = await DownloadVsixWithFallbackAsync(url, item, target, filePath, _downloadCts.Token);
-                    AddReport(item, target, vscodeVersion, "Downloaded", fileName, finalUrl, string.IsNullOrWhiteSpace(warnings) ? "Downloaded." : warnings);
+                    UpdateReport(row, "Downloaded", fileName, finalUrl, string.IsNullOrWhiteSpace(warnings) ? "Downloaded." : warnings);
                     AppendLog($"Downloaded {item.ExtensionId}");
                 }
                 catch (OperationCanceledException)
                 {
-                    AddReport(item, target, vscodeVersion, "Canceled", string.Empty, url, "Canceled.");
+                    UpdateReport(row, "Canceled", string.Empty, url, "Canceled.");
                 }
                 catch (Exception ex)
                 {
-                    AddReport(item, target, vscodeVersion, "Failed", string.Empty, url, ex.Message);
+                    UpdateReport(row, "Failed", string.Empty, url, ex.Message);
                     AppendLog($"Failed {item.ExtensionId}: {ex.Message}");
                 }
+                DownloadProgressBar.Value = index + 1;
             }
 
             await WriteOutputsAsync(outputFolder, target, vscodeVersion);
@@ -271,6 +283,8 @@ public partial class MainWindow : Window
         {
             DownloadButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
+            ProgressTextBlock.Text = string.Empty;
+            CurrentDownloadTextBlock.Text = string.Empty;
             _downloadCts.Dispose();
             _downloadCts = null;
         }
@@ -392,9 +406,9 @@ public partial class MainWindow : Window
             + "\n";
     }
 
-    private void AddReport(BundleItem item, string target, string vscodeVersion, string status, string fileName, string sourceUrl, string message)
+    private DownloadReportRow AddReport(BundleItem item, string target, string vscodeVersion, string status, string fileName, string sourceUrl, string message)
     {
-        ReportRows.Add(new DownloadReportRow
+        var row = new DownloadReportRow
         {
             ExtensionId = item.ExtensionId,
             DisplayName = item.DisplayName,
@@ -407,7 +421,17 @@ public partial class MainWindow : Window
             FileName = fileName,
             SourceUrl = sourceUrl,
             Message = message
-        });
+        };
+        ReportRows.Add(row);
+        return row;
+    }
+
+    private static void UpdateReport(DownloadReportRow row, string status, string fileName, string sourceUrl, string message)
+    {
+        row.Status = status;
+        row.FileName = fileName;
+        row.SourceUrl = sourceUrl;
+        row.Message = message;
     }
 
     private void UpdateOverallStatus()
@@ -415,11 +439,25 @@ public partial class MainWindow : Window
         var failed = ReportRows.Count(row => row.Status == "Failed");
         var canceled = ReportRows.Count(row => row.Status == "Canceled");
         var downloaded = ReportRows.Count(row => row.Status == "Downloaded");
-        OverallStatusTextBlock.Text = canceled > 0
+        SetOverallStatus(canceled > 0
             ? "Canceled"
             : failed == 0 ? "Complete"
             : downloaded > 0 ? "Partial Success"
-            : "Failed";
+            : "Failed");
+    }
+
+    private void SetOverallStatus(string status)
+    {
+        OverallStatusTextBlock.Text = status;
+        StatusBadgeBorder.Background = status switch
+        {
+            "Downloading" => System.Windows.Media.Brushes.DodgerBlue,
+            "Complete" => System.Windows.Media.Brushes.SeaGreen,
+            "Partial Success" => System.Windows.Media.Brushes.DarkGoldenrod,
+            "Failed" => System.Windows.Media.Brushes.Firebrick,
+            "Canceled" => System.Windows.Media.Brushes.DimGray,
+            _ => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(60, 60, 60))
+        };
     }
 
     private void OpenOutput_Click(object sender, RoutedEventArgs e)
@@ -726,8 +764,15 @@ public sealed class BundleItem : ExtensionSearchResult
     public string DependencyType { get; set; } = "Requested";
 }
 
-public sealed class DownloadReportRow
+public sealed class DownloadReportRow : INotifyPropertyChanged
 {
+    private string _status = string.Empty;
+    private string _fileName = string.Empty;
+    private string _sourceUrl = string.Empty;
+    private string _message = string.Empty;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public string ExtensionId { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public string Publisher { get; set; } = string.Empty;
@@ -735,10 +780,21 @@ public sealed class DownloadReportRow
     public string TargetPlatform { get; set; } = string.Empty;
     public string VSCodeVersion { get; set; } = string.Empty;
     public string DependencyType { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
-    public string SourceUrl { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
+    public string Status { get => _status; set => SetField(ref _status, value, nameof(Status)); }
+    public string FileName { get => _fileName; set => SetField(ref _fileName, value, nameof(FileName)); }
+    public string SourceUrl { get => _sourceUrl; set => SetField(ref _sourceUrl, value, nameof(SourceUrl)); }
+    public string Message { get => _message; set => SetField(ref _message, value, nameof(Message)); }
+
+    private void SetField(ref string field, string value, string propertyName)
+    {
+        if (field == value)
+        {
+            return;
+        }
+
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
 
 public sealed class LockEntry

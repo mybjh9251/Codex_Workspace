@@ -158,12 +158,12 @@
                     <DataGrid x:Name="ReportDataGrid" Grid.Row="1" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Extension ID" Binding="{Binding ExtensionId}" Width="180" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="2*" />
                             <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="100" />
                             <DataGridTextColumn Header="Target" Binding="{Binding TargetPlatform}" Width="95" />
                             <DataGridTextColumn Header="Type" Binding="{Binding DependencyType}" Width="100" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" />
                             <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="180" />
-                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

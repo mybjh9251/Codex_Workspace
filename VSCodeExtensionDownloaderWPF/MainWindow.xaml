@@ -48,7 +48,7 @@
 
             <DockPanel Grid.Row="1" Margin="0,0,0,12">
                 <Button Content="Search" DockPanel.Dock="Right" Width="62" MinHeight="24" Padding="6,3" Margin="6,0,0,0" Click="SearchButton_Click" />
-                <TextBox x:Name="SearchTextBox" Text="python" FontSize="14" KeyDown="SearchTextBox_KeyDown" />
+                <TextBox x:Name="SearchTextBox" FontSize="14" KeyDown="SearchTextBox_KeyDown" />
             </DockPanel>
 
             <ListBox x:Name="SearchResultsListBox" Grid.Row="2" Background="#1E1E1E" BorderThickness="0"

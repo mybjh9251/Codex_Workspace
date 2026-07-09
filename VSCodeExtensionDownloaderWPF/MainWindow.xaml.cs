@@ -23,6 +23,7 @@ public partial class MainWindow : Window
         "VSCodeExtensionBundle");
     private CancellationTokenSource? _downloadCts;
     private AppSettings _settings = new();
+    private List<ExtensionSearchResult>? _mostPopularCache;
 
     public ObservableCollection<ExtensionSearchResult> SearchResults { get; } = [];
     public ObservableCollection<BundleItem> BundleItems { get; } = [];
@@ -34,7 +35,7 @@ public partial class MainWindow : Window
         DataContext = this;
         TargetPlatformComboBox.ItemsSource = new[] { "win32-x64", "linux-x64" };
         SearchFilterComboBox.ItemsSource = new[] { "Recommended", "Most Popular" };
-        SearchFilterComboBox.SelectedItem = "Recommended";
+        SearchFilterComboBox.SelectedItem = "Most Popular";
         LoadSettings();
         _ = SearchAsync();
     }
@@ -89,17 +90,18 @@ public partial class MainWindow : Window
     private async Task SearchAsync()
     {
         var query = SearchTextBox.Text.Trim();
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            return;
-        }
 
         try
         {
-            AppendLog($"Searching Marketplace: {query}");
+            AppendLog(string.IsNullOrWhiteSpace(query)
+                ? "Loading pre-fetched Most Popular extensions."
+                : $"Searching Marketplace: {query}");
             SearchResults.Clear();
-            var results = await MarketplaceClient.SearchAsync(query, 25, CancellationToken.None);
-            if ((SearchFilterComboBox.SelectedItem as string) == "Most Popular")
+            var results = string.IsNullOrWhiteSpace(query)
+                ? await LoadMostPopularAsync()
+                : await MarketplaceClient.SearchAsync(query, 25, CancellationToken.None);
+
+            if (!string.IsNullOrWhiteSpace(query) && (SearchFilterComboBox.SelectedItem as string) == "Most Popular")
             {
                 results = results.OrderByDescending(result => result.Installs).ToList();
             }
@@ -114,6 +116,17 @@ public partial class MainWindow : Window
             AppendLog("Search failed: " + ex.Message);
             MessageBox.Show(this, ex.Message, "Search failed", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    private async Task<List<ExtensionSearchResult>> LoadMostPopularAsync()
+    {
+        if (_mostPopularCache is not null)
+        {
+            return _mostPopularCache;
+        }
+
+        _mostPopularCache = await MarketplaceClient.GetMostPopularAsync(50, CancellationToken.None);
+        return _mostPopularCache;
     }
 
     private void AddToBundle_Click(object sender, RoutedEventArgs e)
@@ -514,6 +527,27 @@ public static class MarketplaceClient
                     pageNumber = 1,
                     pageSize,
                     sortBy = 0,
+                    sortOrder = 0
+                }
+            },
+            flags = 914
+        };
+
+        return await QueryAsync(payload, cancellationToken);
+    }
+
+    public static async Task<List<ExtensionSearchResult>> GetMostPopularAsync(int pageSize, CancellationToken cancellationToken)
+    {
+        var payload = new
+        {
+            filters = new[]
+            {
+                new
+                {
+                    criteria = new[] { new { filterType = 8, value = "Microsoft.VisualStudio.Code" } },
+                    pageNumber = 1,
+                    pageSize,
+                    sortBy = 4,
                     sortOrder = 0
                 }
             },

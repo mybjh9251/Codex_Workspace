@@ -27,7 +27,7 @@
 
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="560" />
+            <ColumnDefinition Width="520" />
             <ColumnDefinition Width="16" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -51,6 +51,12 @@
 
             <ListBox x:Name="SearchResultsListBox" Grid.Row="2" Background="#1E1E1E" BorderThickness="0"
                      ItemsSource="{Binding SearchResults}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Padding="0,8,0,8" BorderBrush="#2D2D30" BorderThickness="0,0,0,1">
@@ -58,7 +64,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="74" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="116" />
+                                    <ColumnDefinition Width="136" />
                                 </Grid.ColumnDefinitions>
                                 <Border Width="56" Height="56" Background="#2D2D30" HorizontalAlignment="Left" VerticalAlignment="Top">
                                     <Image Source="{Binding IconUrl}" Stretch="Uniform" />
@@ -126,9 +132,9 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <DockPanel Margin="0,0,0,8">
+                    <DockPanel Margin="0,0,0,8" LastChildFill="False">
                         <TextBlock Text="Bundle Queue" FontSize="16" FontWeight="SemiBold" />
-                        <Button Content="Remove Selected" DockPanel.Dock="Right" Click="RemoveSelected_Click" />
+                        <Button Content="Remove Selected" DockPanel.Dock="Right" Width="132" Click="RemoveSelected_Click" />
                     </DockPanel>
                     <DataGrid x:Name="QueueDataGrid" Grid.Row="1" ItemsSource="{Binding BundleItems}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
                         <DataGrid.Columns>
@@ -155,15 +161,16 @@
                         </StackPanel>
                         <TextBlock x:Name="OverallStatusTextBlock" Text="Ready" DockPanel.Dock="Right" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </DockPanel>
-                    <DataGrid x:Name="ReportDataGrid" Grid.Row="1" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                    <DataGrid x:Name="ReportDataGrid" Grid.Row="1" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Extension ID" Binding="{Binding ExtensionId}" Width="180" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" />
-                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="2*" />
-                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="100" />
-                            <DataGridTextColumn Header="Target" Binding="{Binding TargetPlatform}" Width="95" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding DependencyType}" Width="100" />
-                            <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="180" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="86" />
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="360" MinWidth="300" />
+                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="82" />
+                            <DataGridTextColumn Header="Target" Binding="{Binding TargetPlatform}" Width="88" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding DependencyType}" Width="90" />
+                            <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="220" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

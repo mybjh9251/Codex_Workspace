@@ -42,6 +42,8 @@
             <DockPanel Grid.Row="0" Margin="0,0,0,10">
                 <TextBlock Text="EXTENSIONS: MARKETPLACE" FontSize="12" Foreground="#DCDCDC" VerticalAlignment="Center" />
                 <Button Content="Refresh" DockPanel.Dock="Right" Width="62" MinHeight="24" Padding="6,3" Click="SearchButton_Click" />
+                <ComboBox x:Name="SearchFilterComboBox" DockPanel.Dock="Right" Width="106" Margin="0,0,6,0" FontSize="11"
+                          SelectionChanged="SearchFilter_Changed" />
             </DockPanel>
 
             <DockPanel Grid.Row="1" Margin="0,0,0,12">

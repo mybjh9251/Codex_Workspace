@@ -33,6 +33,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = this;
         TargetPlatformComboBox.ItemsSource = new[] { "win32-x64", "linux-x64" };
+        SearchFilterComboBox.ItemsSource = new[] { "Recommended", "Most Popular" };
+        SearchFilterComboBox.SelectedItem = "Recommended";
         LoadSettings();
         _ = SearchAsync();
     }
@@ -68,6 +70,14 @@ public partial class MainWindow : Window
         await SearchAsync();
     }
 
+    private async void SearchFilter_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (IsLoaded)
+        {
+            await SearchAsync();
+        }
+    }
+
     private async void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -89,11 +99,15 @@ public partial class MainWindow : Window
             AppendLog($"Searching Marketplace: {query}");
             SearchResults.Clear();
             var results = await MarketplaceClient.SearchAsync(query, 25, CancellationToken.None);
+            if ((SearchFilterComboBox.SelectedItem as string) == "Most Popular")
+            {
+                results = results.OrderByDescending(result => result.Installs).ToList();
+            }
             foreach (var result in results)
             {
                 SearchResults.Add(result);
             }
-            AppendLog($"Search returned {SearchResults.Count} result(s).");
+            AppendLog($"Search returned {SearchResults.Count} result(s). Filter: {SearchFilterComboBox.SelectedItem}.");
         }
         catch (Exception ex)
         {

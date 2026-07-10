@@ -1,0 +1,189 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="ProviderTabTemplate">
+        <Grid Width="{Binding Width}" Height="82" Margin="0,0,26,0">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <Border Width="28"
+                        Height="28"
+                        CornerRadius="{Binding IconCornerRadius}"
+                        Background="{Binding IconBackground}">
+                    <TextBlock Text="{Binding IconText}"
+                               Foreground="White"
+                               FontSize="{Binding IconFontSize}"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding DisplayName}"
+                           Margin="10,0,0,0"
+                           FontSize="19"
+                           FontWeight="{Binding FontWeight}"
+                           Foreground="{Binding TextBrush}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+            <Border Height="6"
+                    Background="{Binding UnderlineBrush}"
+                    CornerRadius="3"
+                    VerticalAlignment="Bottom" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PackageCardTemplate">
+        <Border Style="{StaticResource MockupPackageCard}"
+                BorderBrush="{Binding BorderBrush}"
+                BorderThickness="{Binding BorderThickness}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="94" />
+                    <RowDefinition Height="42" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource MockupIconTile}"
+                            Background="{Binding IconBackground}">
+                        <TextBlock Text="{Binding IconText}"
+                                   Foreground="{Binding IconForeground}"
+                                   FontSize="{Binding IconFontSize}"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="14,0,0,0">
+                        <TextBlock Text="{Binding TitleLine1}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827" />
+                        <TextBlock Text="{Binding TitleLine2}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding PublisherText}"
+                                       FontSize="14"
+                                       Foreground="#4B5563" />
+                            <TextBlock Text=" ●"
+                                       FontSize="14"
+                                       Foreground="#147BD1" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Grid.Row="1"
+                           Text="{Binding Description}"
+                           Style="{StaticResource MockupBodyText}" />
+
+                <Grid Grid.Row="2">
+                    <TextBlock Text="{Binding MetadataText}"
+                               FontSize="14"
+                               Foreground="#4B5563"
+                               VerticalAlignment="Center" />
+                    <Button Width="78"
+                            Height="36"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource MockupPlainButton}"
+                            Foreground="#147BD1"
+                            Content="Add  +" />
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="AddedPackageRowTemplate">
+        <Grid Height="72">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal"
+                        Margin="20,0,0,0"
+                        VerticalAlignment="Center">
+                <Border Width="32"
+                        Height="32"
+                        Background="{Binding IconBackground}"
+                        CornerRadius="4">
+                    <TextBlock Text="{Binding IconText}"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding PackageId}"
+                           Margin="12,0,0,0"
+                           FontSize="14"
+                           Foreground="#374151"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding RequestedVersion}"
+                       FontSize="15"
+                       Foreground="#374151"
+                       VerticalAlignment="Center" />
+            <TextBlock Grid.Column="2"
+                       Text="{Binding ResolvedVersion}"
+                       FontSize="15"
+                       Foreground="#16A34A"
+                       VerticalAlignment="Center" />
+            <Border Grid.Column="3"
+                    Width="28"
+                    Height="28"
+                    BorderBrush="#D0D8E2"
+                    BorderThickness="1"
+                    CornerRadius="5"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left">
+                <TextBlock Text="{Binding DependencyCount}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Border>
+            <StackPanel Grid.Column="4"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <TextBlock Text="✓"
+                           Foreground="#22A34A"
+                           FontSize="19"
+                           Margin="0,0,8,0" />
+                <TextBlock Text="{Binding Status}"
+                           FontSize="15"
+                           Foreground="#374151" />
+            </StackPanel>
+            <TextBlock Grid.Column="5"
+                       Text="♙"
+                       Foreground="#EF4444"
+                       FontSize="20"
+                       HorizontalAlignment="Right"
+                       Margin="0,0,24,0"
+                       VerticalAlignment="Center" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="SummaryMetricTemplate">
+        <StackPanel Orientation="Horizontal"
+                    Margin="{Binding Margin}"
+                    VerticalAlignment="Center">
+            <TextBlock Text="{Binding Icon}"
+                       FontSize="35"
+                       Foreground="#3F4855"
+                       Margin="0,0,18,0" />
+            <StackPanel>
+                <TextBlock Text="{Binding Label}"
+                           FontSize="15"
+                           Foreground="#3F4855" />
+                <TextBlock Text="{Binding Value}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{Binding ValueBrush}" />
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

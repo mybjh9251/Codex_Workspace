@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="Themes/TextStyles.xaml" />
                 <ResourceDictionary Source="Themes/ListBoxStyles.xaml" />
                 <ResourceDictionary Source="Themes/TabStyles.xaml" />
+                <ResourceDictionary Source="Themes/PackageBrowserTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

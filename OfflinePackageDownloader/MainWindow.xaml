@@ -1,189 +1,223 @@
-﻿<Window x:Class="OfflinePackageDownloader.MainWindow"
+<Window x:Class="OfflinePackageDownloader.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Offline Package Downloader" Height="760" Width="1180" MinHeight="680" MinWidth="980">
-    <Grid Background="#F4F5F7">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        Title="Offline Package Downloader" Height="780" Width="1280" MinHeight="720" MinWidth="1100">
+    <Grid Background="#F4F5F7" Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="170" />
+            <RowDefinition Height="76" />
+        </Grid.RowDefinitions>
 
-        <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="0,0,1,0">
-            <DockPanel Margin="16">
-                <TextBlock DockPanel.Dock="Top" Text="Providers" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <ListBox x:Name="ProviderList"
-                         SelectionChanged="ProviderList_SelectionChanged"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         HorizontalContentAlignment="Stretch">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Padding="10" Margin="0,0,0,8" CornerRadius="6" BorderBrush="#D8DCE3" BorderThickness="1" Background="#FAFAFB">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="#5F6773" FontSize="12" Margin="0,4,0,0" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-        </Border>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Offline Package Downloader" FontSize="26" FontWeight="SemiBold" />
+                <TextBlock x:Name="ProviderHintText" Foreground="#5F6773" Margin="0,4,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button x:Name="ResolveButton" Content="Resolve Preview" Click="ResolveButton_Click" MinWidth="120" Margin="0,0,8,0" Padding="12,8" />
+                <Button x:Name="DownloadButton" Content="Download" Click="DownloadButton_Click" MinWidth="110" Margin="0,0,8,0" Padding="12,8" Background="#2563EB" Foreground="White" />
+                <Button x:Name="CancelButton" Content="Cancel" Click="CancelButton_Click" MinWidth="90" Padding="12,8" IsEnabled="False" />
+            </StackPanel>
+        </Grid>
 
-        <Grid Grid.Column="1" Margin="18">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <TabControl Grid.Row="1"
+                    x:Name="ProviderList"
+                    SelectionChanged="ProviderList_SelectionChanged"
+                    Margin="0,16,0,12"
+                    Padding="0"
+                    BorderBrush="#D8DCE3"
+                    Background="Transparent">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" Padding="16,7" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+        </TabControl>
 
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock x:Name="TitleText" FontSize="26" FontWeight="SemiBold" />
-                    <TextBlock x:Name="ProviderHintText" Foreground="#5F6773" Margin="0,4,0,0" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                    <Button x:Name="ResolveButton" Content="Resolve Preview" Click="ResolveButton_Click" MinWidth="120" Margin="0,0,8,0" Padding="12,8" />
-                    <Button x:Name="DownloadButton" Content="Download" Click="DownloadButton_Click" MinWidth="110" Margin="0,0,8,0" Padding="12,8" Background="#2563EB" Foreground="White" />
-                    <Button x:Name="CancelButton" Content="Cancel" Click="CancelButton_Click" MinWidth="90" Padding="12,8" IsEnabled="False" />
-                </StackPanel>
-            </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,16,0,14">
+            <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="1" CornerRadius="6" Padding="14">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="3*" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                        <TextBlock x:Name="RequestHeaderText" Text="Requests" FontWeight="SemiBold" />
-                        <StackPanel x:Name="VSCodeSearchPanel" Visibility="Collapsed" Margin="0,6,0,8">
-                            <DockPanel>
-                                <Button DockPanel.Dock="Right" Content="Search" Click="SearchMarketplace_Click" MinWidth="72" Margin="8,0,0,0" />
-                                <TextBox x:Name="MarketplaceSearchTextBox" KeyDown="MarketplaceSearchTextBox_KeyDown" />
-                            </DockPanel>
-                            <ListBox x:Name="MarketplaceResultsList"
-                                     ItemsSource="{Binding MarketplaceResults}"
-                                     Height="120"
-                                     Margin="0,6,0,0"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <DockPanel Margin="4">
-                                            <Button DockPanel.Dock="Right" Content="Add" Click="AddMarketplaceResult_Click" Tag="{Binding}" MinWidth="52" Margin="8,0,0,0" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="90" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="RequestHeaderText" Text="Requests" FontSize="16" FontWeight="SemiBold" />
+
+                    <Grid x:Name="VSCodeSearchPanel" Grid.Row="1" Visibility="Collapsed" Margin="0,10,0,12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Search" Click="SearchMarketplace_Click" MinWidth="86" Margin="8,0,0,0" Padding="10,6" />
+                            <TextBox x:Name="MarketplaceSearchTextBox"
+                                     KeyDown="MarketplaceSearchTextBox_KeyDown"
+                                     Height="32"
+                                     FontSize="14"
+                                     VerticalContentAlignment="Center" />
+                        </DockPanel>
+
+                        <ListBox x:Name="MarketplaceResultsList"
+                                 Grid.Row="1"
+                                 ItemsSource="{Binding MarketplaceResults}"
+                                 Margin="0,8,0,0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="8" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                                        <DockPanel LastChildFill="True">
+                                            <Button DockPanel.Dock="Right" Content="Add" Click="AddMarketplaceResult_Click" Tag="{Binding}" MinWidth="56" Margin="10,0,0,0" />
                                             <StackPanel>
-                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                <TextBlock Text="{Binding ExtensionId}" Foreground="#5F6773" FontSize="12" />
+                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding ExtensionId}" Foreground="#2563EB" FontSize="12" />
                                                 <TextBlock Text="{Binding Description}" Foreground="#5F6773" FontSize="12" TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
                                         </DockPanel>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </StackPanel>
-                        <TextBox x:Name="RequestTextBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="132" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <TextBlock Grid.Row="2" Text="Selected / Requested" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <TextBox Grid.Row="3"
+                             x:Name="RequestTextBox"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             TextWrapping="Wrap" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="1" CornerRadius="6" Padding="14">
+                <Grid>
+                    <TextBlock Text="Target / Source" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10" />
+
+                    <StackPanel x:Name="NuGetSettingsPanel" Margin="0,34,0,0">
+                        <TextBlock Text="Package Source" />
+                        <ComboBox x:Name="NuGetSourceComboBox" IsEditable="True" Margin="0,2,0,10" />
+                        <TextBlock Text="Target Framework" />
+                        <ComboBox x:Name="NuGetTargetFrameworkComboBox" IsEditable="True" Margin="0,2,0,10" />
+                        <TextBlock Text="Max Parallelism" />
+                        <ComboBox x:Name="NuGetMaxParallelismComboBox" IsEditable="True" Margin="0,2,0,0" />
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                        <TextBlock Text="Target / Source Settings" FontWeight="SemiBold" />
-                        <Grid Margin="0,6,0,0">
-                            <StackPanel x:Name="NuGetSettingsPanel">
-                                <TextBlock Text="Package Source" />
-                                <ComboBox x:Name="NuGetSourceComboBox" IsEditable="True" Margin="0,2,0,8" />
-                                <TextBlock Text="Target Framework" />
-                                <ComboBox x:Name="NuGetTargetFrameworkComboBox" IsEditable="True" Margin="0,2,0,8" />
-                                <TextBlock Text="Max Parallelism" />
-                                <ComboBox x:Name="NuGetMaxParallelismComboBox" IsEditable="True" Margin="0,2,0,0" />
-                            </StackPanel>
 
-                            <StackPanel x:Name="PythonSettingsPanel" Visibility="Collapsed">
-                                <TextBlock Text="Python Executable" />
-                                <TextBox x:Name="PythonExecutableTextBox" Margin="0,2,0,8" />
-                                <TextBlock Text="Index URL" />
-                                <ComboBox x:Name="PythonIndexUrlComboBox" IsEditable="True" Margin="0,2,0,8" />
-                                <TextBlock Text="Target Platform / Python Version" />
-                                <Grid Margin="0,2,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="8" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="PythonPlatformComboBox" IsEditable="True" />
-                                    <ComboBox x:Name="PythonVersionComboBox" Grid.Column="2" IsEditable="True" />
-                                </Grid>
-                                <TextBlock Text="ABI" />
-                                <TextBox x:Name="PythonAbiTextBox" />
-                            </StackPanel>
-
-                            <StackPanel x:Name="VSCodeSettingsPanel" Visibility="Collapsed">
-                                <TextBlock Text="VS Code Version" />
-                                <ComboBox x:Name="VSCodeVersionComboBox" IsEditable="True" Margin="0,2,0,8" />
-                                <TextBlock Text="Target Platform" />
-                                <ComboBox x:Name="VSCodeTargetPlatformComboBox" IsEditable="True" Margin="0,2,0,0" />
-                            </StackPanel>
-
-                            <StackPanel x:Name="UbuntuSettingsPanel" Visibility="Collapsed">
-                                <TextBlock Text="Ubuntu Version / Architecture" />
-                                <Grid Margin="0,2,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="8" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="UbuntuVersionComboBox" IsEditable="True" />
-                                    <ComboBox x:Name="UbuntuArchitectureComboBox" Grid.Column="2" IsEditable="True" />
-                                </Grid>
-                                <TextBlock Text="Components / Pockets" />
-                                <Grid Margin="0,2,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="8" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="UbuntuComponentsComboBox" IsEditable="True" />
-                                    <ComboBox x:Name="UbuntuPocketsComboBox" Grid.Column="2" IsEditable="True" />
-                                </Grid>
-                                <TextBlock Text="Base URL / Max Packages" />
-                                <Grid Margin="0,2,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="8" />
-                                        <ColumnDefinition Width="90" />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="UbuntuBaseUrlComboBox" IsEditable="True" />
-                                    <TextBox x:Name="UbuntuMaxPackagesTextBox" Grid.Column="2" />
-                                </Grid>
-                            </StackPanel>
+                    <StackPanel x:Name="PythonSettingsPanel" Visibility="Collapsed" Margin="0,34,0,0">
+                        <TextBlock Text="Python Executable" />
+                        <TextBox x:Name="PythonExecutableTextBox" Margin="0,2,0,10" />
+                        <TextBlock Text="Index URL" />
+                        <ComboBox x:Name="PythonIndexUrlComboBox" IsEditable="True" Margin="0,2,0,10" />
+                        <TextBlock Text="Platform / Python Version" />
+                        <Grid Margin="0,2,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="PythonPlatformComboBox" IsEditable="True" />
+                            <ComboBox x:Name="PythonVersionComboBox" Grid.Column="2" IsEditable="True" />
                         </Grid>
+                        <TextBlock Text="ABI" />
+                        <TextBox x:Name="PythonAbiTextBox" />
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Output" FontWeight="SemiBold" />
-                        <TextBox x:Name="OutputTextBox" Margin="0,6,0,8" />
-                        <CheckBox x:Name="OverwriteCheckBox" Content="Overwrite existing artifacts" Margin="0,0,0,8" />
-                        <TextBlock x:Name="StatusText" Text="Ready" TextWrapping="Wrap" Foreground="#374151" />
+
+                    <StackPanel x:Name="VSCodeSettingsPanel" Visibility="Collapsed" Margin="0,34,0,0">
+                        <TextBlock Text="VS Code Version" />
+                        <ComboBox x:Name="VSCodeVersionComboBox" IsEditable="True" Margin="0,2,0,10" />
+                        <TextBlock Text="Target Platform" />
+                        <ComboBox x:Name="VSCodeTargetPlatformComboBox" IsEditable="True" Margin="0,2,0,0" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="UbuntuSettingsPanel" Visibility="Collapsed" Margin="0,34,0,0">
+                        <TextBlock Text="Ubuntu Version / Architecture" />
+                        <Grid Margin="0,2,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="UbuntuVersionComboBox" IsEditable="True" />
+                            <ComboBox x:Name="UbuntuArchitectureComboBox" Grid.Column="2" IsEditable="True" />
+                        </Grid>
+                        <TextBlock Text="Components / Pockets" />
+                        <Grid Margin="0,2,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="UbuntuComponentsComboBox" IsEditable="True" />
+                            <ComboBox x:Name="UbuntuPocketsComboBox" Grid.Column="2" IsEditable="True" />
+                        </Grid>
+                        <TextBlock Text="Base URL / Max Packages" />
+                        <Grid Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="90" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="UbuntuBaseUrlComboBox" IsEditable="True" />
+                            <TextBox x:Name="UbuntuMaxPackagesTextBox" Grid.Column="2" />
+                        </Grid>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <DataGrid Grid.Row="2" x:Name="ResultsGrid" ItemsSource="{Binding Results}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" Background="White" BorderBrush="#D8DCE3" BorderThickness="1">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Provider" Binding="{Binding ProviderId}" Width="120" />
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
-                    <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="140" />
-                    <DataGridTextColumn Header="Kind" Binding="{Binding Kind}" Width="120" />
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120" />
-                    <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="2*" />
-                    <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="3*" />
-                </DataGrid.Columns>
-            </DataGrid>
-
-            <TextBox Grid.Row="3" x:Name="LogTextBox" Height="100" Margin="0,12,0,0" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
+            <Border Grid.Column="4" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="1" CornerRadius="6" Padding="14">
+                <StackPanel>
+                    <TextBlock Text="Output" FontSize="16" FontWeight="SemiBold" />
+                    <TextBox x:Name="OutputTextBox" Margin="0,10,0,10" />
+                    <CheckBox x:Name="OverwriteCheckBox" Content="Overwrite existing artifacts" Margin="0,0,0,12" />
+                    <TextBlock x:Name="StatusText" Text="Ready" TextWrapping="Wrap" Foreground="#374151" />
+                </StackPanel>
+            </Border>
         </Grid>
+
+        <DataGrid Grid.Row="3"
+                  x:Name="ResultsGrid"
+                  ItemsSource="{Binding Results}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  Background="White"
+                  BorderBrush="#D8DCE3"
+                  BorderThickness="1"
+                  Margin="0,14,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="130" />
+                <DataGridTextColumn Header="Kind" Binding="{Binding Kind}" Width="120" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120" />
+                <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="2*" />
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="3*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBox Grid.Row="4"
+                 x:Name="LogTextBox"
+                 Margin="0,10,0,0"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto"
+                 TextWrapping="Wrap" />
     </Grid>
 </Window>

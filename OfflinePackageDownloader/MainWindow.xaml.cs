@@ -38,7 +38,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        TitleText.Text = definition.DisplayName;
         ProviderHintText.Text = definition.Description;
         RequestTextBox.Text = definition.DefaultRequests;
         MarketplaceSearchTextBox.Text = definition.Id == "vscode-extension" ? "python" : string.Empty;

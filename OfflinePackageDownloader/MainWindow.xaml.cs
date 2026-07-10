@@ -51,8 +51,8 @@ public partial class MainWindow : Window
     private void ApplyInitialWindowBounds()
     {
         var workArea = SystemParameters.WorkArea;
-        Width = Math.Min(workArea.Width * 0.78, workArea.Width - 80);
-        Height = Math.Min(workArea.Height * 0.82, workArea.Height - 80);
+        Width = Math.Min(workArea.Width * 0.624, workArea.Width - 80);
+        Height = Math.Min(workArea.Height * 0.656, workArea.Height - 80);
         Left = workArea.Left + (workArea.Width - Width) / 2;
         Top = workArea.Top + (workArea.Height - Height) / 2;
     }

@@ -22,4 +22,33 @@
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Padding" Value="0" />
     </Style>
+
+    <Style x:Key="MockupPlainButton" TargetType="Button">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#D8E0EA" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="#293241" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MockupPrimaryButton" TargetType="Button" BasedOn="{StaticResource MockupPlainButton}">
+        <Setter Property="Background" Value="#0875D1" />
+        <Setter Property="BorderBrush" Value="#0875D1" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
 </ResourceDictionary>

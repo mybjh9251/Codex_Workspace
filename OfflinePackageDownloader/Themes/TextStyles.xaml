@@ -4,4 +4,22 @@
         <Setter Property="Foreground" Value="#687386" />
         <Setter Property="FontSize" Value="14" />
     </Style>
+
+    <Style x:Key="MockupHeaderText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#111827" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style x:Key="MockupMutedText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#667085" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="MockupBodyText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#374151" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
 </ResourceDictionary>

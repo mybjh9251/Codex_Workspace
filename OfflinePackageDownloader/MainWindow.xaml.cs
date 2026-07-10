@@ -1,18 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Input;
 
 namespace OfflinePackageDownloader;
 
 public partial class MainWindow : Window
 {
+    private readonly MainWindowViewModel viewModel;
+
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = MainWindowViewModel.CreateDesignMockup();
+        viewModel = MainWindowViewModel.CreateDesignMockup();
+        DataContext = viewModel;
         ApplyInitialWindowBounds();
     }
 
@@ -24,20 +31,52 @@ public partial class MainWindow : Window
         Left = workArea.Left + (workArea.Width - Width) / 2;
         Top = workArea.Top + (workArea.Height - Height) / 2;
     }
+
+    private async void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) await viewModel.SearchAsync();
+    }
+
+    private async void SearchButton_Click(object sender, RoutedEventArgs e) => await viewModel.SearchAsync();
+    private void ClearSearchButton_Click(object sender, RoutedEventArgs e) => viewModel.ClearSearch();
+
+    private void ClearAddedPackagesButton_Click(object sender, RoutedEventArgs e) => viewModel.ClearAddedPackages();
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new SettingsWindow(viewModel.Settings, "nuget") { Owner = this };
+        if (window.ShowDialog() == true)
+        {
+            AppSettingsStore.Save(viewModel.Settings);
+            viewModel.NotifySettingsApplied();
+        }
+    }
+
+    private async void PreviewButton_Click(object sender, RoutedEventArgs e) => await RunNuGetAsync(true);
+    private async void DownloadButton_Click(object sender, RoutedEventArgs e) => await RunNuGetAsync(false);
+
+    private async System.Threading.Tasks.Task RunNuGetAsync(bool previewOnly)
+    {
+        try { await viewModel.RunNuGetAsync(previewOnly); }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, ex.Message, "NuGet operation", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
 }
 
-public sealed class MainWindowViewModel
+public sealed partial class MainWindowViewModel : INotifyPropertyChanged
 {
-    public string SearchText { get; init; } = string.Empty;
-    public string SortLabel { get; init; } = "Relevance";
-    public string ResultCountText { get; init; } = string.Empty;
-    public string PageSummaryText { get; init; } = string.Empty;
+    public string SearchText { get; set; } = string.Empty;
+    public string SortLabel { get; } = "Relevance";
+    public string ResultCountText { get; set; } = string.Empty;
+    public string PageSummaryText { get; set; } = string.Empty;
     public string AddedPackagesTitle => $"Added Packages ({AddedPackages.Count})";
     public ObservableCollection<ProviderTabMock> ProviderTabs { get; } = new();
     public ObservableCollection<PackageCardMock> SearchResults { get; } = new();
     public ObservableCollection<AddedPackageMock> AddedPackages { get; } = new();
     public ObservableCollection<SummaryMetricMock> SummaryMetrics { get; } = new();
-    public SelectedPackageMock SelectedPackage { get; init; } = new();
+    public SelectedPackageMock SelectedPackage { get; set; } = new();
 
     public static MainWindowViewModel CreateDesignMockup()
     {
@@ -76,7 +115,7 @@ public sealed class MainWindowViewModel
             model.SearchResults.Add(item);
         }
 
-        model.AddedPackages.Add(new AddedPackageMock(".NET", "#5B2DD1", "Microsoft.Extensions.\nConfiguration.Json", "8.0.0", "8.0.0", 3, "Ready"));
+        model.AddedPackages.Add(new AddedPackageMock(".NET", "#5B2DD1", "Microsoft.Extensions.Configuration.Json", "8.0.0", "8.0.0", 3, "Ready"));
         model.AddedPackages.Add(new AddedPackageMock("{}{ }", "#1468A8", "Newtonsoft.Json", "13.0.3", "13.0.3", 0, "Ready"));
         model.AddedPackages.Add(new AddedPackageMock("≡", "#0E8388", "System.Text.Json", "8.0.0", "8.0.0", 1, "Ready"));
 
@@ -128,11 +167,16 @@ public sealed class SelectedPackageMock
     public string License { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public string ProjectUrl { get; init; } = string.Empty;
-    public ObservableCollection<string> DependencyChips { get; } = new();
+    public ObservableCollection<string> DependencyChips { get; init; } = new();
 }
 
 public sealed class PackageCardMock
 {
+    public string PackageId { get; init; } = string.Empty;
+    public string LatestVersion { get; init; } = "latest";
+    public string DownloadsText { get; init; } = "downloads unavailable";
+    public string License { get; init; } = "Unknown";
+    public string ProjectUrl { get; init; } = string.Empty;
     public string TitleLine1 { get; init; } = string.Empty;
     public string TitleLine2 { get; init; } = string.Empty;
     public string PublisherText { get; init; } = string.Empty;
@@ -144,6 +188,32 @@ public sealed class PackageCardMock
     public int IconFontSize { get; init; } = 18;
     public string BorderBrush { get; init; } = "#DFE6EF";
     public string BorderThickness { get; init; } = "1";
+
+    public static PackageCardMock FromSearchResult(PackageSearchResult result)
+    {
+        var title = string.IsNullOrWhiteSpace(result.DisplayName) ? result.PackageId : result.DisplayName;
+        var splitAt = title.LastIndexOf('.', Math.Min(title.Length - 1, 32));
+        var line1 = splitAt > 8 ? title[..(splitAt + 1)] : title;
+        var line2 = splitAt > 8 ? title[(splitAt + 1)..] : string.Empty;
+        return new PackageCardMock
+        {
+            PackageId = result.PackageId,
+            TitleLine1 = line1,
+            TitleLine2 = line2,
+            PublisherText = string.IsNullOrWhiteSpace(result.Publisher) ? "by NuGet publisher" : $"by {result.Publisher}",
+            Description = result.Description,
+            MetadataText = $"{result.DownloadsText}     v{result.LatestVersion}",
+            IconText = result.IconText,
+            IconBackground = result.IconBackground,
+            IconFontSize = result.IconText == ".NET" ? 16 : 26,
+            LatestVersion = string.IsNullOrWhiteSpace(result.LatestVersion) ? "latest" : result.LatestVersion,
+            DownloadsText = result.Downloads > 0 ? result.Downloads.ToString("N0") : "-",
+            License = result.License,
+            ProjectUrl = result.ProjectUrl
+        };
+    }
+
+    public string EffectivePackageId => string.IsNullOrWhiteSpace(PackageId) ? string.Concat(TitleLine1, TitleLine2) : PackageId;
 
     public static IReadOnlyList<PackageCardMock> CreateDefaults()
     {

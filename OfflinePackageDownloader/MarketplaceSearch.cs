@@ -84,7 +84,7 @@ public static class NuGetSearchClient
             var id = package.TryGetProperty("id", out var idElement) ? idElement.GetString() ?? string.Empty : string.Empty;
             var version = package.TryGetProperty("version", out var versionElement) ? versionElement.GetString() ?? string.Empty : string.Empty;
             var description = package.TryGetProperty("description", out var descriptionElement) ? descriptionElement.GetString() ?? string.Empty : string.Empty;
-            var authors = package.TryGetProperty("authors", out var authorsElement) ? authorsElement.GetString() ?? string.Empty : string.Empty;
+            var authors = package.TryGetProperty("authors", out var authorsElement) ? ReadText(authorsElement) : string.Empty;
             var license = package.TryGetProperty("licenseExpression", out var licenseElement) ? licenseElement.GetString() ?? string.Empty : string.Empty;
             var projectUrl = package.TryGetProperty("projectUrl", out var projectUrlElement) ? projectUrlElement.GetString() ?? string.Empty : string.Empty;
             var downloads = package.TryGetProperty("totalDownloads", out var downloadsElement) && downloadsElement.TryGetInt64(out var parsedDownloads) ? parsedDownloads : 0;
@@ -102,6 +102,19 @@ public static class NuGetSearchClient
                 ProjectUrl = projectUrl
             };
         }).Where(item => !string.IsNullOrWhiteSpace(item.PackageId)).ToList();
+    }
+
+    private static string ReadText(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString() ?? string.Empty,
+            JsonValueKind.Array => string.Join(", ", value.EnumerateArray()
+                .Where(item => item.ValueKind == JsonValueKind.String)
+                .Select(item => item.GetString())
+                .Where(item => !string.IsNullOrWhiteSpace(item))),
+            _ => string.Empty
+        };
     }
 }
 

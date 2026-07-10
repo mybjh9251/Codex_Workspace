@@ -34,6 +34,11 @@
         <Border Style="{StaticResource MockupPackageCard}"
                 BorderBrush="{Binding BorderBrush}"
                 BorderThickness="{Binding BorderThickness}">
+            <Border.InputBindings>
+                <MouseBinding MouseAction="LeftClick"
+                              Command="{Binding DataContext.SelectPackageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                              CommandParameter="{Binding}" />
+            </Border.InputBindings>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="80" />
@@ -85,6 +90,8 @@
                             HorizontalAlignment="Right"
                             Style="{StaticResource MockupPlainButton}"
                             Foreground="#147BD1"
+                            Command="{Binding DataContext.AddPackageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                            CommandParameter="{Binding}"
                             Content="Add  +" />
                 </Grid>
             </Grid>

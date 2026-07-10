@@ -46,6 +46,7 @@
                                 Width="128"
                                 Height="48"
                                 Style="{StaticResource MockupPlainButton}"
+                                Click="SettingsButton_Click"
                                 VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="⚙" FontSize="21" Margin="0,0,8,0" />
@@ -95,11 +96,14 @@
                                                FontSize="29"
                                                Foreground="#303A48"
                                                VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding SearchText}"
-                                               FontSize="19"
-                                               Foreground="#3A414C"
-                                               VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="19"
+                                             Foreground="#3A414C"
+                                             VerticalAlignment="Center"
+                                             KeyDown="SearchTextBox_KeyDown" />
                                     <TextBlock Grid.Column="2"
                                                Text="×"
                                                FontSize="25"
@@ -112,6 +116,7 @@
                             <Button Grid.Column="2"
                                     Height="48"
                                     Style="{StaticResource MockupPlainButton}"
+                                    Click="SearchButton_Click"
                                     VerticalAlignment="Top">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="▽" FontSize="20" Margin="0,0,8,0" />
@@ -310,10 +315,17 @@
                                 </Grid.RowDefinitions>
                                 <Grid Margin="20,0">
                                     <TextBlock Text="{Binding AddedPackagesTitle}" Style="{StaticResource MockupHeaderText}" VerticalAlignment="Center" />
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            Click="ClearAddedPackagesButton_Click">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="♙" Foreground="#EF4444" FontSize="21" Margin="0,0,8,0" />
                                         <TextBlock Text="Clear All" Foreground="#EF4444" FontSize="15" VerticalAlignment="Center" />
                                     </StackPanel>
+                                    </Button>
                                 </Grid>
                                 <Grid Grid.Row="1" Background="#F7F9FC">
                                     <Grid.ColumnDefinitions>
@@ -374,17 +386,26 @@
                                         Content="{Binding SummaryMetrics[4]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
 
-                        <Button Grid.Column="9"
-                                Width="230"
-                                Height="52"
-                                HorizontalAlignment="Right"
-                                Margin="0,0,24,0"
-                                Style="{StaticResource MockupPrimaryButton}">
+                        <StackPanel Grid.Column="9"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,24,0">
+                            <Button Width="132"
+                                    Height="52"
+                                    Margin="0,0,12,0"
+                                    Style="{StaticResource MockupPlainButton}"
+                                    Click="PreviewButton_Click"
+                                    Content="Preview" />
+                            <Button Width="230"
+                                    Height="52"
+                                    Style="{StaticResource MockupPrimaryButton}"
+                                    Click="DownloadButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="⇩" FontSize="27" Margin="0,0,10,0" />
                                 <TextBlock Text="Download" FontSize="19" VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                            </Button>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>

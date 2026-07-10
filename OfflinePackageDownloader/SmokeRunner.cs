@@ -22,6 +22,17 @@ public static class SmokeRunner
 
         foreach (var provider in providers)
         {
+            if (provider.Definition.Id == "vscode-extension")
+            {
+                var searchResults = await MarketplaceSearchClient.SearchAsync("git", 5, CancellationToken.None);
+                Console.WriteLine($"SMOKE SEARCH vscode-extension results={searchResults.Count}");
+                if (searchResults.Count == 0 || searchResults.All(result => string.IsNullOrWhiteSpace(result.ExtensionId)))
+                {
+                    failures.Add("vscode-extension:SearchFailed");
+                    continue;
+                }
+            }
+
             var providerOutput = CommonOutput.ProviderOutputFolder(root, provider.Definition.Id);
             var request = new ProviderRunRequest(
                 provider.Definition.Id,

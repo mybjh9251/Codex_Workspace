@@ -4,14 +4,19 @@
         Title="Offline Package Downloader" Height="760" Width="1180" MinHeight="680" MinWidth="980">
     <Grid Background="#F4F5F7">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="320" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#D8DCE3" BorderThickness="0,0,1,0">
             <DockPanel Margin="16">
                 <TextBlock DockPanel.Dock="Top" Text="Providers" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <ListBox x:Name="ProviderList" SelectionChanged="ProviderList_SelectionChanged" BorderThickness="0" Background="Transparent">
+                <ListBox x:Name="ProviderList"
+                         SelectionChanged="ProviderList_SelectionChanged"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         HorizontalContentAlignment="Stretch">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="10" Margin="0,0,0,8" CornerRadius="6" BorderBrush="#D8DCE3" BorderThickness="1" Background="#FAFAFB">
@@ -58,12 +63,104 @@
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                        <TextBlock Text="Requests" FontWeight="SemiBold" />
+                        <TextBlock x:Name="RequestHeaderText" Text="Requests" FontWeight="SemiBold" />
+                        <StackPanel x:Name="VSCodeSearchPanel" Visibility="Collapsed" Margin="0,6,0,8">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="Search" Click="SearchMarketplace_Click" MinWidth="72" Margin="8,0,0,0" />
+                                <TextBox x:Name="MarketplaceSearchTextBox" KeyDown="MarketplaceSearchTextBox_KeyDown" />
+                            </DockPanel>
+                            <ListBox x:Name="MarketplaceResultsList"
+                                     ItemsSource="{Binding MarketplaceResults}"
+                                     Height="120"
+                                     Margin="0,6,0,0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Margin="4">
+                                            <Button DockPanel.Dock="Right" Content="Add" Click="AddMarketplaceResult_Click" Tag="{Binding}" MinWidth="52" Margin="8,0,0,0" />
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding ExtensionId}" Foreground="#5F6773" FontSize="12" />
+                                                <TextBlock Text="{Binding Description}" Foreground="#5F6773" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
                         <TextBox x:Name="RequestTextBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="132" TextWrapping="Wrap" Margin="0,6,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="0,0,12,0">
                         <TextBlock Text="Target / Source Settings" FontWeight="SemiBold" />
-                        <TextBox x:Name="TargetTextBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="132" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <Grid Margin="0,6,0,0">
+                            <StackPanel x:Name="NuGetSettingsPanel">
+                                <TextBlock Text="Package Source" />
+                                <ComboBox x:Name="NuGetSourceComboBox" IsEditable="True" Margin="0,2,0,8" />
+                                <TextBlock Text="Target Framework" />
+                                <ComboBox x:Name="NuGetTargetFrameworkComboBox" IsEditable="True" Margin="0,2,0,8" />
+                                <TextBlock Text="Max Parallelism" />
+                                <ComboBox x:Name="NuGetMaxParallelismComboBox" IsEditable="True" Margin="0,2,0,0" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="PythonSettingsPanel" Visibility="Collapsed">
+                                <TextBlock Text="Python Executable" />
+                                <TextBox x:Name="PythonExecutableTextBox" Margin="0,2,0,8" />
+                                <TextBlock Text="Index URL" />
+                                <ComboBox x:Name="PythonIndexUrlComboBox" IsEditable="True" Margin="0,2,0,8" />
+                                <TextBlock Text="Target Platform / Python Version" />
+                                <Grid Margin="0,2,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="PythonPlatformComboBox" IsEditable="True" />
+                                    <ComboBox x:Name="PythonVersionComboBox" Grid.Column="2" IsEditable="True" />
+                                </Grid>
+                                <TextBlock Text="ABI" />
+                                <TextBox x:Name="PythonAbiTextBox" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="VSCodeSettingsPanel" Visibility="Collapsed">
+                                <TextBlock Text="VS Code Version" />
+                                <ComboBox x:Name="VSCodeVersionComboBox" IsEditable="True" Margin="0,2,0,8" />
+                                <TextBlock Text="Target Platform" />
+                                <ComboBox x:Name="VSCodeTargetPlatformComboBox" IsEditable="True" Margin="0,2,0,0" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="UbuntuSettingsPanel" Visibility="Collapsed">
+                                <TextBlock Text="Ubuntu Version / Architecture" />
+                                <Grid Margin="0,2,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="UbuntuVersionComboBox" IsEditable="True" />
+                                    <ComboBox x:Name="UbuntuArchitectureComboBox" Grid.Column="2" IsEditable="True" />
+                                </Grid>
+                                <TextBlock Text="Components / Pockets" />
+                                <Grid Margin="0,2,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="UbuntuComponentsComboBox" IsEditable="True" />
+                                    <ComboBox x:Name="UbuntuPocketsComboBox" Grid.Column="2" IsEditable="True" />
+                                </Grid>
+                                <TextBlock Text="Base URL / Max Packages" />
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="UbuntuBaseUrlComboBox" IsEditable="True" />
+                                    <TextBox x:Name="UbuntuMaxPackagesTextBox" Grid.Column="2" />
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Output" FontWeight="SemiBold" />

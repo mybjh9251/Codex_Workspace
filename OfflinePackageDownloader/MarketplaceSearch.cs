@@ -19,6 +19,64 @@ public sealed class MarketplaceSearchResult
     public double Rating { get; init; }
 }
 
+public sealed class PackageSearchResult
+{
+    public string ProviderId { get; init; } = string.Empty;
+    public string PackageId { get; init; } = string.Empty;
+    public string DisplayName { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string Publisher { get; init; } = string.Empty;
+    public string LatestVersion { get; init; } = string.Empty;
+    public long Downloads { get; init; }
+    public string License { get; init; } = string.Empty;
+    public string ProjectUrl { get; init; } = string.Empty;
+    public string IconText => string.IsNullOrWhiteSpace(DisplayName) ? "P" : DisplayName[..1].ToUpperInvariant();
+    public string DownloadsText => Downloads > 0 ? $"{Downloads:N0} downloads" : "downloads unavailable";
+    public string LatestVersionText => string.IsNullOrWhiteSpace(LatestVersion) ? "latest" : $"{LatestVersion} (latest)";
+}
+
+public static class NuGetSearchClient
+{
+    private static readonly HttpClient Http = new();
+
+    public static async Task<IReadOnlyList<PackageSearchResult>> SearchAsync(string query, int pageSize, CancellationToken cancellationToken)
+    {
+        var url = $"https://azuresearch-usnc.nuget.org/query?q={Uri.EscapeDataString(query)}&take={pageSize}&prerelease=false&semVerLevel=2.0.0";
+        using var response = await Http.GetAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+        if (!document.RootElement.TryGetProperty("data", out var data))
+        {
+            return Array.Empty<PackageSearchResult>();
+        }
+
+        return data.EnumerateArray().Select(package =>
+        {
+            var id = package.TryGetProperty("id", out var idElement) ? idElement.GetString() ?? string.Empty : string.Empty;
+            var version = package.TryGetProperty("version", out var versionElement) ? versionElement.GetString() ?? string.Empty : string.Empty;
+            var description = package.TryGetProperty("description", out var descriptionElement) ? descriptionElement.GetString() ?? string.Empty : string.Empty;
+            var authors = package.TryGetProperty("authors", out var authorsElement) ? authorsElement.GetString() ?? string.Empty : string.Empty;
+            var license = package.TryGetProperty("licenseExpression", out var licenseElement) ? licenseElement.GetString() ?? string.Empty : string.Empty;
+            var projectUrl = package.TryGetProperty("projectUrl", out var projectUrlElement) ? projectUrlElement.GetString() ?? string.Empty : string.Empty;
+            var downloads = package.TryGetProperty("totalDownloads", out var downloadsElement) && downloadsElement.TryGetInt64(out var parsedDownloads) ? parsedDownloads : 0;
+
+            return new PackageSearchResult
+            {
+                ProviderId = "nuget",
+                PackageId = id,
+                DisplayName = id,
+                Description = description,
+                Publisher = authors,
+                LatestVersion = version,
+                Downloads = downloads,
+                License = string.IsNullOrWhiteSpace(license) ? "Unknown" : license,
+                ProjectUrl = projectUrl
+            };
+        }).Where(item => !string.IsNullOrWhiteSpace(item.PackageId)).ToList();
+    }
+}
+
 public static class MarketplaceSearchClient
 {
     private static readonly HttpClient Http = new();

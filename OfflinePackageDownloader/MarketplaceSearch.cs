@@ -30,7 +30,35 @@ public sealed class PackageSearchResult
     public long Downloads { get; init; }
     public string License { get; init; } = string.Empty;
     public string ProjectUrl { get; init; } = string.Empty;
-    public string IconText => string.IsNullOrWhiteSpace(DisplayName) ? "P" : DisplayName[..1].ToUpperInvariant();
+    public string IconText
+    {
+        get
+        {
+            var id = PackageId;
+            if (id.Contains("Configuration.Json", StringComparison.OrdinalIgnoreCase)) return ".NET";
+            if (id.Contains("Newtonsoft", StringComparison.OrdinalIgnoreCase)) return "{}";
+            if (id.Contains("System.Text.Json", StringComparison.OrdinalIgnoreCase)) return "≡";
+            if (id.Contains("cpptools", StringComparison.OrdinalIgnoreCase) || id.Contains("cpp", StringComparison.OrdinalIgnoreCase)) return "C";
+            if (id.Contains("python", StringComparison.OrdinalIgnoreCase)) return "Py";
+            if (id.Contains("ubuntu", StringComparison.OrdinalIgnoreCase)) return "U";
+            return string.IsNullOrWhiteSpace(DisplayName) ? "Pkg" : DisplayName[..1].ToUpperInvariant();
+        }
+    }
+
+    public string IconBackground
+    {
+        get
+        {
+            var id = PackageId;
+            if (id.Contains("Newtonsoft", StringComparison.OrdinalIgnoreCase)) return "#1666A6";
+            if (id.Contains("System.Text.Json", StringComparison.OrdinalIgnoreCase)) return "#158585";
+            if (id.Contains("Serilog", StringComparison.OrdinalIgnoreCase)) return "#2F74B5";
+            if (id.Contains("Configuration", StringComparison.OrdinalIgnoreCase)) return "#542CCB";
+            if (id.Contains("cpptools", StringComparison.OrdinalIgnoreCase) || id.Contains("cpp", StringComparison.OrdinalIgnoreCase)) return "#542CCB";
+            return "#542CCB";
+        }
+    }
+
     public string DownloadsText => Downloads > 0 ? $"{Downloads:N0} downloads" : "downloads unavailable";
     public string LatestVersionText => string.IsNullOrWhiteSpace(LatestVersion) ? "latest" : $"{LatestVersion} (latest)";
 }

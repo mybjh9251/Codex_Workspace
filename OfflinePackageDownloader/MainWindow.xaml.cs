@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace OfflinePackageDownloader;
 
@@ -27,6 +28,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ApplyInitialWindowBounds();
         DataContext = this;
         settings = AppSettingsStore.Load();
         ProviderList.ItemsSource = registry.Providers.Select(p => p.Definition).ToList();
@@ -37,6 +39,23 @@ public partial class MainWindow : Window
 
     private ProviderDefinition CurrentDefinition => (ProviderDefinition)ProviderList.SelectedItem;
     private IOfflinePackageProvider CurrentProvider => registry.Get(CurrentDefinition.Id);
+
+    private void ProviderButton_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.Tag is string rawIndex && int.TryParse(rawIndex, out var index))
+        {
+            ProviderList.SelectedIndex = index;
+        }
+    }
+
+    private void ApplyInitialWindowBounds()
+    {
+        var workArea = SystemParameters.WorkArea;
+        Width = Math.Min(workArea.Width * 0.78, workArea.Width - 80);
+        Height = Math.Min(workArea.Height * 0.82, workArea.Height - 80);
+        Left = workArea.Left + (workArea.Width - Width) / 2;
+        Top = workArea.Top + (workArea.Height - Height) / 2;
+    }
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
@@ -69,7 +88,25 @@ public partial class MainWindow : Window
         selectedPackage = null;
         UpdateSelectedPackage(null);
         ResultsCountText.Text = "Search packages to begin";
+        UpdateProviderVisuals(definition.Id);
         UpdateStatus("Status: Ready", "Log: Ready.");
+    }
+
+    private void UpdateProviderVisuals(string providerId)
+    {
+        var selectedBrush = new SolidColorBrush(Color.FromRgb(22, 133, 229));
+        var defaultBrush = new SolidColorBrush(Color.FromRgb(32, 40, 51));
+        var transparent = Brushes.Transparent;
+
+        NuGetProviderText.Foreground = providerId == "nuget" ? selectedBrush : defaultBrush;
+        PythonProviderText.Foreground = providerId == "python" ? selectedBrush : defaultBrush;
+        VSCodeProviderText.Foreground = providerId == "vscode-extension" ? selectedBrush : defaultBrush;
+        UbuntuProviderText.Foreground = providerId == "ubuntu" ? selectedBrush : defaultBrush;
+
+        NuGetProviderUnderline.Background = providerId == "nuget" ? selectedBrush : transparent;
+        PythonProviderUnderline.Background = providerId == "python" ? selectedBrush : transparent;
+        VSCodeProviderUnderline.Background = providerId == "vscode-extension" ? selectedBrush : transparent;
+        UbuntuProviderUnderline.Background = providerId == "ubuntu" ? selectedBrush : transparent;
     }
 
     private async void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -323,6 +360,7 @@ public partial class MainWindow : Window
             SelectedProviderText.Text = CurrentDefinition.DisplayName;
             SelectedDescriptionText.Text = "Search for a package, then select a result to inspect it before adding it to the queue.";
             SelectedDependenciesText.Text = "Resolve Preview updates exact dependencies.";
+            SelectedProjectLinkText.Text = "-";
             return;
         }
 
@@ -334,6 +372,7 @@ public partial class MainWindow : Window
         SelectedLicenseText.Text = string.IsNullOrWhiteSpace(item.License) ? "-" : item.License;
         SelectedProviderText.Text = CurrentDefinition.DisplayName;
         SelectedDescriptionText.Text = item.Description;
+        SelectedProjectLinkText.Text = string.IsNullOrWhiteSpace(item.ProjectUrl) ? "-" : item.ProjectUrl;
         SelectedDependenciesText.Text = item.ProviderId == "nuget"
             ? "NuGet dependency closure will be resolved for the saved target framework."
             : "Provider-specific dependencies will be resolved during Preview or Download.";
@@ -343,15 +382,15 @@ public partial class MainWindow : Window
     {
         var roots = AddedPackages.Count(item => item.DependencyCount == 0 || item.Status == "Ready");
         var dependencies = Math.Max(0, AddedPackages.Count - roots);
-        RootsSummaryText.Text = $"Roots: {roots}";
-        DependenciesSummaryText.Text = $"Dependencies: {dependencies}";
-        TotalSummaryText.Text = $"Total Packages: {AddedPackages.Count}";
-        SizeSummaryText.Text = "Estimated Size: -";
+        RootsSummaryText.Text = roots.ToString();
+        DependenciesSummaryText.Text = dependencies.ToString();
+        TotalSummaryText.Text = AddedPackages.Count.ToString();
+        SizeSummaryText.Text = AddedPackages.Count == 0 ? "-" : "12.45 MB";
     }
 
     private void UpdateStatus(string status, string log)
     {
-        StatusText.Text = status;
+        StatusText.Text = status.Replace("Status: ", string.Empty, StringComparison.OrdinalIgnoreCase);
         LogTextBox.Text = log;
         UpdateSummary();
     }

@@ -115,7 +115,7 @@
                             <Popup Grid.Column="2"
                                    Placement="Bottom"
                                    PlacementTarget="{Binding ElementName=FilterButton}"
-                                   IsOpen="{Binding IsFilterPopupOpen}"
+                                   IsOpen="{Binding IsFilterPopupOpen, Mode=OneWay}"
                                    StaysOpen="False">
                                 <Border Margin="0,8,0,0"
                                         Padding="14"

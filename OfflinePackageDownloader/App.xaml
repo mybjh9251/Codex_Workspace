@@ -4,7 +4,6 @@
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/WindowStyles.xaml" />
                 <ResourceDictionary Source="Themes/BorderStyles.xaml" />
@@ -16,6 +15,7 @@
                 <ResourceDictionary Source="Themes/TabStyles.xaml" />
                 <ResourceDictionary Source="Themes/PackageBrowserTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

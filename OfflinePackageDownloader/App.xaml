@@ -6,9 +6,12 @@
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/WindowStyles.xaml" />
                 <ResourceDictionary Source="Themes/BorderStyles.xaml" />
                 <ResourceDictionary Source="Themes/ButtonStyles.xaml" />
                 <ResourceDictionary Source="Themes/TextStyles.xaml" />
+                <ResourceDictionary Source="Themes/TextBoxStyles.xaml" />
+                <ResourceDictionary Source="Themes/ComboBoxStyles.xaml" />
                 <ResourceDictionary Source="Themes/ListBoxStyles.xaml" />
                 <ResourceDictionary Source="Themes/TabStyles.xaml" />
                 <ResourceDictionary Source="Themes/PackageBrowserTemplates.xaml" />

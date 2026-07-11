@@ -249,7 +249,7 @@ public sealed partial class MainWindowViewModel
 
     private IEnumerable<PackageCardMock> FilteredResults()
     {
-        var results = allSearchResults.Count > 0 ? allSearchResults : SearchResults;
+        IEnumerable<PackageCardMock> results = allSearchResults.Count > 0 ? allSearchResults : SearchResults;
         if (MicrosoftPublisherOnly)
         {
             results = results.Where(item => item.PublisherText.Contains("Microsoft", StringComparison.OrdinalIgnoreCase));

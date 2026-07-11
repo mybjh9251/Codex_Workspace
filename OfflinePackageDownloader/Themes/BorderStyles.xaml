@@ -33,4 +33,34 @@
         <Setter Property="Padding" Value="14,8" />
         <Setter Property="Margin" Value="0,0,10,10" />
     </Style>
+
+    <Style x:Key="HeaderBarBorder" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#DDE3EA" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style x:Key="SearchInputBorder" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#D8E0EA" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style x:Key="PageNumberBorder" TargetType="Border">
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="BorderBrush" Value="#147BD1" />
+        <Setter Property="BorderThickness" Value="1.5" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+
+    <Style x:Key="QueueHeaderBorder" TargetType="Border">
+        <Setter Property="Background" Value="#F7F9FC" />
+    </Style>
+
+    <Style x:Key="FooterDividerBorder" TargetType="Border">
+        <Setter Property="Background" Value="#DDE5EF" />
+    </Style>
 </ResourceDictionary>

@@ -7,8 +7,7 @@
         MinWidth="1280"
         MinHeight="820"
         WindowStartupLocation="CenterScreen"
-        Background="#F4F7FB"
-        FontFamily="Segoe UI">
+        Style="{StaticResource PackageBrowserWindow}">
     <Grid Background="#F4F7FB">
         <Viewbox Stretch="Uniform"
                  StretchDirection="Both"
@@ -23,9 +22,7 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
-                        Background="White"
-                        BorderBrush="#DDE3EA"
-                        BorderThickness="0,0,0,1">
+                        Style="{StaticResource HeaderBarBorder}">
                     <Grid Margin="28,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -81,11 +78,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border Height="48"
-                                    Background="White"
-                                    BorderBrush="#D8E0EA"
-                                    BorderThickness="1"
-                                    CornerRadius="6"
-                                    VerticalAlignment="Top">
+                                    Style="{StaticResource SearchInputBorder}">
                                 <Grid Margin="16,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="30" />
@@ -97,21 +90,11 @@
                                                Foreground="#303A48"
                                                VerticalAlignment="Center" />
                                     <TextBox Grid.Column="1"
-                                             BorderThickness="0"
-                                             Background="Transparent"
+                                             Style="{StaticResource SearchTextBox}"
                                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                             FontSize="19"
-                                             Foreground="#3A414C"
-                                             VerticalAlignment="Center"
                                              KeyDown="SearchTextBox_KeyDown" />
                                     <Button Grid.Column="2"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Padding="0"
-                                            FontSize="22"
-                                            Foreground="#697586"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource SearchClearButton}"
                                             Click="ClearSearchButton_Click"
                                             Content="×" />
                                 </Grid>
@@ -147,59 +130,42 @@
 
                             <TextBlock Grid.Column="4"
                                        Text="Sort by"
-                                       FontSize="15"
-                                       Foreground="#667085"
+                                       Style="{StaticResource ToolbarLabelText}"
                                        HorizontalAlignment="Right"
-                                       Margin="0,0,12,0"
-                                       VerticalAlignment="Center" />
+                                       Margin="0,0,12,0" />
                             <ComboBox Grid.Column="5"
                                       Height="48"
+                                      Style="{StaticResource SearchSortComboBox}"
                                       ItemsSource="{Binding SortOptions}"
                                       SelectedItem="{Binding SortLabel}"
                                       SelectionChanged="SortComboBox_SelectionChanged"
-                                      FontSize="17"
-                                      Foreground="#293241"
                                       VerticalAlignment="Top" />
                         </Grid>
 
                         <Grid Grid.Row="1">
                             <TextBlock Text="{Binding ResultCountText}"
-                                       FontSize="17"
-                                       FontWeight="SemiBold"
-                                       Foreground="#253041"
-                                       VerticalAlignment="Center" />
+                                       Style="{StaticResource SearchSummaryText}" />
                             <StackPanel Orientation="Horizontal"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding PageSummaryText}"
-                                           FontSize="16"
-                                           Foreground="#465366"
+                                           Style="{StaticResource PageSummaryText}"
                                            Margin="0,0,26,0"
-                                           VerticalAlignment="Center" />
-                                <Button Width="32"
-                                        Height="36"
+                                           />
+                                <Button Style="{StaticResource PagerButton}"
                                         Margin="0,0,18,0"
-                                        Background="Transparent"
-                                        BorderThickness="0"
                                         Content="‹"
-                                        FontSize="27"
-                                        Foreground="#7B8494"
                                         IsEnabled="{Binding HasPreviousPage}"
                                         Click="PreviousPageButton_Click" />
-                                <Border Width="36" Height="36" BorderBrush="#147BD1" BorderThickness="1.5" CornerRadius="5" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding CurrentPageText}" Foreground="#147BD1" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <Border Style="{StaticResource PageNumberBorder}" Margin="0,0,16,0">
+                                    <TextBlock Text="{Binding CurrentPageText}" Style="{StaticResource ActivePageText}" />
                                 </Border>
                                 <TextBlock Text="{Binding NextPageText}" FontSize="16" Foreground="#465366" Margin="0,0,22,0" VerticalAlignment="Center" />
                                 <TextBlock Text="{Binding FollowingPageText}" FontSize="16" Foreground="#465366" Margin="0,0,30,0" VerticalAlignment="Center" />
                                 <TextBlock Text="..." FontSize="16" Foreground="#465366" Margin="0,0,30,0" VerticalAlignment="Center" />
                                 <TextBlock Text="{Binding TotalPagesText}" FontSize="16" Foreground="#465366" Margin="0,0,20,0" VerticalAlignment="Center" />
-                                <Button Width="32"
-                                        Height="36"
-                                        Background="Transparent"
-                                        BorderThickness="0"
+                                <Button Style="{StaticResource PagerButton}"
                                         Content="›"
-                                        FontSize="27"
-                                        Foreground="#293241"
                                         IsEnabled="{Binding HasNextPage}"
                                         Click="NextPageButton_Click" />
                             </StackPanel>
@@ -237,15 +203,8 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Selected Package" Style="{StaticResource MockupHeaderText}" />
-                                <Button Width="34"
-                                        Height="34"
+                                <Button Style="{StaticResource DetailToggleButton}"
                                         HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="0"
-                                        FontSize="24"
-                                        Foreground="#64748B"
                                         Content="{Binding DataContext.SelectedPackageToggleGlyph, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                         Click="SelectedPackageToggleButton_Click" />
 
@@ -359,11 +318,8 @@
                                 </Grid.RowDefinitions>
                                 <Grid Margin="20,0">
                                     <TextBlock Text="{Binding AddedPackagesTitle}" Style="{StaticResource MockupHeaderText}" VerticalAlignment="Center" />
-                                    <Button HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Padding="0"
+                                    <Button Style="{StaticResource QueueClearButton}"
+                                            HorizontalAlignment="Right"
                                             Click="ClearAddedPackagesButton_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="♙" Foreground="#EF4444" FontSize="21" Margin="0,0,8,0" />
@@ -371,7 +327,8 @@
                                     </StackPanel>
                                     </Button>
                                 </Grid>
-                                <Grid Grid.Row="1" Background="#F7F9FC">
+                                <Border Grid.Row="1" Style="{StaticResource QueueHeaderBorder}">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="260" />
                                         <ColumnDefinition Width="130" />
@@ -386,6 +343,7 @@
                                     <TextBlock Grid.Column="3" Text="Deps" FontSize="14" Foreground="#374151" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="4" Text="Status" FontSize="14" Foreground="#374151" VerticalAlignment="Center" />
                                 </Grid>
+                                </Border>
                                 <ItemsControl Grid.Row="2"
                                               ItemsSource="{Binding AddedPackages}"
                                               ItemTemplate="{StaticResource AddedPackageRowTemplate}" />
@@ -413,19 +371,19 @@
 
                         <ContentControl Content="{Binding SummaryMetrics[0]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
-                        <Border Grid.Column="1" Background="#DDE5EF" Margin="0,16" />
+                        <Border Grid.Column="1" Style="{StaticResource FooterDividerBorder}" Margin="0,16" />
                         <ContentControl Grid.Column="2"
                                         Content="{Binding SummaryMetrics[1]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
-                        <Border Grid.Column="3" Background="#DDE5EF" Margin="0,16" />
+                        <Border Grid.Column="3" Style="{StaticResource FooterDividerBorder}" Margin="0,16" />
                         <ContentControl Grid.Column="4"
                                         Content="{Binding SummaryMetrics[2]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
-                        <Border Grid.Column="5" Background="#DDE5EF" Margin="0,16" />
+                        <Border Grid.Column="5" Style="{StaticResource FooterDividerBorder}" Margin="0,16" />
                         <ContentControl Grid.Column="6"
                                         Content="{Binding SummaryMetrics[3]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
-                        <Border Grid.Column="7" Background="#DDE5EF" Margin="0,16" />
+                        <Border Grid.Column="7" Style="{StaticResource FooterDividerBorder}" Margin="0,16" />
                         <ContentControl Grid.Column="8"
                                         Content="{Binding SummaryMetrics[4]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />

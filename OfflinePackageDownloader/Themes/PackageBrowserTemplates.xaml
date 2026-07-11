@@ -32,8 +32,8 @@
 
     <DataTemplate x:Key="PackageCardTemplate">
         <Border Style="{StaticResource MockupPackageCard}"
-                BorderBrush="{Binding BorderBrush}"
-                BorderThickness="{Binding BorderThickness}">
+                BorderBrush="{Binding CardBorderBrush}"
+                BorderThickness="{Binding CardBorderThickness}">
             <Border.InputBindings>
                 <MouseBinding MouseAction="LeftClick"
                               Command="{Binding DataContext.SelectPackageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"

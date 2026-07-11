@@ -104,25 +104,46 @@
                                              Foreground="#3A414C"
                                              VerticalAlignment="Center"
                                              KeyDown="SearchTextBox_KeyDown" />
-                                    <TextBlock Grid.Column="2"
-                                               Text="×"
-                                               FontSize="25"
-                                               Foreground="#697586"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Right" />
+                                    <Button Grid.Column="2"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            FontSize="22"
+                                            Foreground="#697586"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            Click="ClearSearchButton_Click"
+                                            Content="×" />
                                 </Grid>
                             </Border>
 
-                            <Button Grid.Column="2"
+                            <Button x:Name="FilterButton"
+                                    Grid.Column="2"
                                     Height="48"
                                     Style="{StaticResource MockupPlainButton}"
-                                    Click="SearchButton_Click"
+                                    Click="FilterButton_Click"
                                     VerticalAlignment="Top">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="▽" FontSize="20" Margin="0,0,8,0" />
                                     <TextBlock Text="Filters" />
                                 </StackPanel>
                             </Button>
+
+                            <Popup Grid.Column="2"
+                                   Placement="Bottom"
+                                   PlacementTarget="{Binding ElementName=FilterButton}"
+                                   IsOpen="{Binding IsFilterPopupOpen}"
+                                   StaysOpen="False">
+                                <Border Margin="0,8,0,0"
+                                        Padding="14"
+                                        Background="White"
+                                        BorderBrush="#D8E0EA"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                    <CheckBox Content="Microsoft publisher only"
+                                              IsChecked="{Binding MicrosoftPublisherOnly}" />
+                                </Border>
+                            </Popup>
 
                             <TextBlock Grid.Column="4"
                                        Text="Sort by"
@@ -131,25 +152,14 @@
                                        HorizontalAlignment="Right"
                                        Margin="0,0,12,0"
                                        VerticalAlignment="Center" />
-                            <Border Grid.Column="5"
-                                    Height="48"
-                                    Background="White"
-                                    BorderBrush="#D8E0EA"
-                                    BorderThickness="1"
-                                    CornerRadius="5"
-                                    VerticalAlignment="Top">
-                                <Grid Margin="14,0">
-                                    <TextBlock Text="{Binding SortLabel}"
-                                               FontSize="17"
-                                               Foreground="#293241"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Text="⌄"
-                                               FontSize="22"
-                                               Foreground="#293241"
-                                               HorizontalAlignment="Right"
-                                               VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
+                            <ComboBox Grid.Column="5"
+                                      Height="48"
+                                      ItemsSource="{Binding SortOptions}"
+                                      SelectedItem="{Binding SortLabel}"
+                                      SelectionChanged="SortComboBox_SelectionChanged"
+                                      FontSize="17"
+                                      Foreground="#293241"
+                                      VerticalAlignment="Top" />
                         </Grid>
 
                         <Grid Grid.Row="1">
@@ -166,15 +176,32 @@
                                            Foreground="#465366"
                                            Margin="0,0,26,0"
                                            VerticalAlignment="Center" />
-                                <TextBlock Text="‹" FontSize="34" Foreground="#7B8494" Margin="0,0,18,0" VerticalAlignment="Center" />
+                                <Button Width="32"
+                                        Height="36"
+                                        Margin="0,0,18,0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Content="‹"
+                                        FontSize="27"
+                                        Foreground="#7B8494"
+                                        IsEnabled="{Binding HasPreviousPage}"
+                                        Click="PreviousPageButton_Click" />
                                 <Border Width="36" Height="36" BorderBrush="#147BD1" BorderThickness="1.5" CornerRadius="5" Margin="0,0,16,0">
-                                    <TextBlock Text="1" Foreground="#147BD1" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding CurrentPageText}" Foreground="#147BD1" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
-                                <TextBlock Text="2" FontSize="16" Foreground="#465366" Margin="0,0,22,0" VerticalAlignment="Center" />
-                                <TextBlock Text="3" FontSize="16" Foreground="#465366" Margin="0,0,30,0" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding NextPageText}" FontSize="16" Foreground="#465366" Margin="0,0,22,0" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding FollowingPageText}" FontSize="16" Foreground="#465366" Margin="0,0,30,0" VerticalAlignment="Center" />
                                 <TextBlock Text="..." FontSize="16" Foreground="#465366" Margin="0,0,30,0" VerticalAlignment="Center" />
-                                <TextBlock Text="103" FontSize="16" Foreground="#465366" Margin="0,0,20,0" VerticalAlignment="Center" />
-                                <TextBlock Text="›" FontSize="34" Foreground="#293241" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding TotalPagesText}" FontSize="16" Foreground="#465366" Margin="0,0,20,0" VerticalAlignment="Center" />
+                                <Button Width="32"
+                                        Height="36"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Content="›"
+                                        FontSize="27"
+                                        Foreground="#293241"
+                                        IsEnabled="{Binding HasNextPage}"
+                                        Click="NextPageButton_Click" />
                             </StackPanel>
                         </Grid>
 
@@ -192,7 +219,7 @@
 
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="500" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="18" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
@@ -203,16 +230,27 @@
                             <Grid DataContext="{Binding SelectedPackage}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="42" />
-                                    <RowDefinition Height="122" />
-                                    <RowDefinition Height="64" />
-                                    <RowDefinition Height="74" />
-                                    <RowDefinition Height="44" />
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Selected Package" Style="{StaticResource MockupHeaderText}" />
-                                <TextBlock Text="⌃" FontSize="28" HorizontalAlignment="Right" Foreground="#64748B" />
+                                <Button Width="34"
+                                        Height="34"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="0"
+                                        FontSize="24"
+                                        Foreground="#64748B"
+                                        Content="{Binding DataContext.SelectedPackageToggleGlyph, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                        Click="SelectedPackageToggleButton_Click" />
 
-                                <Grid Grid.Row="1" Margin="0,8,0,0">
+                                <Grid Grid.Row="1" Margin="0,8,0,0"
+                                      Visibility="{Binding DataContext.IsSelectedPackageExpanded, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="86" />
                                         <ColumnDefinition Width="*" />
@@ -241,7 +279,9 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <Grid Grid.Row="2">
+                                <Grid Grid.Row="2"
+                                      Margin="0,12,0,0"
+                                      Visibility="{Binding DataContext.IsSelectedPackageExpanded, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="1" />
@@ -278,15 +318,19 @@
                                            Text="{Binding Description}"
                                            Style="{StaticResource MockupBodyText}"
                                            FontSize="16"
-                                           VerticalAlignment="Center" />
+                                           VerticalAlignment="Center"
+                                           Margin="0,14,0,0"
+                                           Visibility="{Binding DataContext.IsSelectedPackageExpanded, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,14,0,0"
+                                            Visibility="{Binding DataContext.IsSelectedPackageExpanded, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <TextBlock Text="◎" FontSize="22" Foreground="#3B4351" Margin="0,0,12,0" />
                                     <TextBlock Text="Project Link" FontSize="15" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,22,0" />
                                     <TextBlock Text="{Binding ProjectUrl}" FontSize="15" Foreground="#147BD1" />
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="5" Margin="0,8,0,0">
+                                <StackPanel Grid.Row="5" Margin="0,14,0,0"
+                                            Visibility="{Binding DataContext.IsSelectedPackageExpanded, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <TextBlock Text="Dependencies (preview)" FontSize="15" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,10" />
                                     <ItemsControl ItemsSource="{Binding DependencyChips}">
                                         <ItemsControl.ItemsPanel>

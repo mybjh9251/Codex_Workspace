@@ -12,6 +12,13 @@ namespace OfflinePackageDownloader;
 
 public sealed partial class MainWindowViewModel
 {
+    private const int PageSize = 12;
+    private readonly List<PackageCardMock> allSearchResults = new();
+    private bool isFilterPopupOpen;
+    private bool microsoftPublisherOnly;
+    private bool isSelectedPackageExpanded = true;
+    private int currentPage = 1;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public AppSettings Settings { get; } = AppSettingsStore.Load();
@@ -23,6 +30,52 @@ public sealed partial class MainWindowViewModel
     {
         if (parameter is PackageCardMock package) Select(package);
     });
+
+    public bool IsFilterPopupOpen
+    {
+        get => isFilterPopupOpen;
+        private set
+        {
+            if (isFilterPopupOpen == value) return;
+            isFilterPopupOpen = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool MicrosoftPublisherOnly
+    {
+        get => microsoftPublisherOnly;
+        set
+        {
+            if (microsoftPublisherOnly == value) return;
+            microsoftPublisherOnly = value;
+            currentPage = 1;
+            OnPropertyChanged();
+            ApplySearchResultView();
+        }
+    }
+
+    public bool IsSelectedPackageExpanded
+    {
+        get => isSelectedPackageExpanded;
+        private set
+        {
+            if (isSelectedPackageExpanded == value) return;
+            isSelectedPackageExpanded = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedPackageToggleGlyph));
+        }
+    }
+
+    public string SelectedPackageToggleGlyph => IsSelectedPackageExpanded ? "⌃" : "⌄";
+
+    public bool HasPreviousPage => currentPage > 1;
+    public bool HasNextPage => currentPage < TotalPages;
+    public string CurrentPageText => currentPage.ToString();
+    public string NextPageText => Math.Min(currentPage + 1, TotalPages).ToString();
+    public string FollowingPageText => Math.Min(currentPage + 2, TotalPages).ToString();
+    public string TotalPagesText => TotalPages.ToString();
+    private int TotalPages => Math.Max(1, (FilteredResults().Count() + PageSize - 1) / PageSize);
 
     public async Task SearchAsync()
     {
@@ -39,15 +92,11 @@ public sealed partial class MainWindowViewModel
 
         try
         {
-            var results = await NuGetSearchClient.SearchAsync(query, 24, CancellationToken.None);
-            SearchResults.Clear();
-            foreach (var result in results)
-            {
-                SearchResults.Add(PackageCardMock.FromSearchResult(result));
-            }
-
-            ResultCountText = $"{results.Count:N0} results for \"{query}\"";
-            PageSummaryText = results.Count == 0 ? "No packages found" : $"Showing 1 - {results.Count:N0}";
+            var results = await NuGetSearchClient.SearchAsync(query, 60, CancellationToken.None);
+            allSearchResults.Clear();
+            allSearchResults.AddRange(results.Select(PackageCardMock.FromSearchResult));
+            currentPage = 1;
+            ApplySearchResultView();
             if (SearchResults.Count > 0)
             {
                 Select(SearchResults[0]);
@@ -67,12 +116,18 @@ public sealed partial class MainWindowViewModel
         SearchText = string.Empty;
         ResultCountText = "Enter a package name to search NuGet";
         PageSummaryText = string.Empty;
+        allSearchResults.Clear();
         SearchResults.Clear();
         RaiseDisplayProperties();
     }
 
     public void Select(PackageCardMock package)
     {
+        foreach (var item in allSearchResults.Concat(SearchResults).Distinct())
+        {
+            item.IsSelected = string.Equals(item.EffectivePackageId, package.EffectivePackageId, StringComparison.OrdinalIgnoreCase);
+        }
+
         SelectedPackage = new SelectedPackageMock
         {
             IconText = package.IconText,
@@ -90,6 +145,24 @@ public sealed partial class MainWindowViewModel
             }
         };
         OnPropertyChanged(nameof(SelectedPackage));
+    }
+
+    public void ToggleFilterPopup() => IsFilterPopupOpen = !IsFilterPopupOpen;
+
+    public void ToggleSelectedPackageExpanded() => IsSelectedPackageExpanded = !IsSelectedPackageExpanded;
+
+    public void PreviousPage()
+    {
+        if (!HasPreviousPage) return;
+        currentPage--;
+        ApplySearchResultView();
+    }
+
+    public void NextPage()
+    {
+        if (!HasNextPage) return;
+        currentPage++;
+        ApplySearchResultView();
     }
 
     public void Add(PackageCardMock package)
@@ -172,6 +245,52 @@ public sealed partial class MainWindowViewModel
         OnPropertyChanged(nameof(SearchText));
         OnPropertyChanged(nameof(ResultCountText));
         OnPropertyChanged(nameof(PageSummaryText));
+    }
+
+    private IEnumerable<PackageCardMock> FilteredResults()
+    {
+        var results = allSearchResults.Count > 0 ? allSearchResults : SearchResults;
+        if (MicrosoftPublisherOnly)
+        {
+            results = results.Where(item => item.PublisherText.Contains("Microsoft", StringComparison.OrdinalIgnoreCase));
+        }
+
+        return SortLabel switch
+        {
+            "Downloads" => results.OrderByDescending(item => ParseDownloads(item.DownloadsText)),
+            "Package ID" => results.OrderBy(item => item.EffectivePackageId, StringComparer.OrdinalIgnoreCase),
+            _ => results
+        };
+    }
+
+    private void ApplySearchResultView()
+    {
+        var filtered = FilteredResults().ToList();
+        currentPage = Math.Clamp(currentPage, 1, Math.Max(1, (filtered.Count + PageSize - 1) / PageSize));
+        SearchResults.Clear();
+        foreach (var item in filtered.Skip((currentPage - 1) * PageSize).Take(PageSize))
+        {
+            SearchResults.Add(item);
+        }
+
+        ResultCountText = string.IsNullOrWhiteSpace(SearchText)
+            ? "Enter a package name to search NuGet"
+            : $"{filtered.Count:N0} results for \"{SearchText}\"";
+        var start = filtered.Count == 0 ? 0 : (currentPage - 1) * PageSize + 1;
+        var end = Math.Min(currentPage * PageSize, filtered.Count);
+        PageSummaryText = filtered.Count == 0 ? "No packages found" : $"Showing {start} - {end} of {filtered.Count:N0}";
+        OnPropertyChanged(nameof(HasPreviousPage));
+        OnPropertyChanged(nameof(HasNextPage));
+        OnPropertyChanged(nameof(CurrentPageText));
+        OnPropertyChanged(nameof(NextPageText));
+        OnPropertyChanged(nameof(FollowingPageText));
+        OnPropertyChanged(nameof(TotalPagesText));
+        RaiseDisplayProperties();
+    }
+
+    private static long ParseDownloads(string value)
+    {
+        return long.TryParse(value.Replace(",", string.Empty), out var downloads) ? downloads : 0;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

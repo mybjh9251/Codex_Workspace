@@ -4,6 +4,7 @@
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/BorderStyles.xaml" />
                 <ResourceDictionary Source="Themes/ButtonStyles.xaml" />

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace OfflinePackageDownloader;
@@ -39,6 +40,14 @@ public partial class MainWindow : Window
 
     private async void SearchButton_Click(object sender, RoutedEventArgs e) => await viewModel.SearchAsync();
     private void ClearSearchButton_Click(object sender, RoutedEventArgs e) => viewModel.ClearSearch();
+    private void FilterButton_Click(object sender, RoutedEventArgs e) => viewModel.ToggleFilterPopup();
+    private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ComboBox { SelectedItem: string sortLabel }) viewModel.SortLabel = sortLabel;
+    }
+    private void PreviousPageButton_Click(object sender, RoutedEventArgs e) => viewModel.PreviousPage();
+    private void NextPageButton_Click(object sender, RoutedEventArgs e) => viewModel.NextPage();
+    private void SelectedPackageToggleButton_Click(object sender, RoutedEventArgs e) => viewModel.ToggleSelectedPackageExpanded();
 
     private void ClearAddedPackagesButton_Click(object sender, RoutedEventArgs e) => viewModel.ClearAddedPackages();
 
@@ -68,9 +77,21 @@ public partial class MainWindow : Window
 public sealed partial class MainWindowViewModel : INotifyPropertyChanged
 {
     public string SearchText { get; set; } = string.Empty;
-    public string SortLabel { get; } = "Relevance";
+    private string sortLabel = "Relevance";
+    public string SortLabel
+    {
+        get => sortLabel;
+        set
+        {
+            if (string.Equals(sortLabel, value, StringComparison.Ordinal)) return;
+            sortLabel = value;
+            OnPropertyChanged();
+            ApplySearchResultView();
+        }
+    }
     public string ResultCountText { get; set; } = string.Empty;
     public string PageSummaryText { get; set; } = string.Empty;
+    public ObservableCollection<string> SortOptions { get; } = new() { "Relevance", "Downloads", "Package ID" };
     public string AddedPackagesTitle => $"Added Packages ({AddedPackages.Count})";
     public ObservableCollection<ProviderTabMock> ProviderTabs { get; } = new();
     public ObservableCollection<PackageCardMock> SearchResults { get; } = new();
@@ -170,8 +191,12 @@ public sealed class SelectedPackageMock
     public ObservableCollection<string> DependencyChips { get; init; } = new();
 }
 
-public sealed class PackageCardMock
+public sealed class PackageCardMock : INotifyPropertyChanged
 {
+    private bool isSelected;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public string PackageId { get; init; } = string.Empty;
     public string LatestVersion { get; init; } = "latest";
     public string DownloadsText { get; init; } = "downloads unavailable";
@@ -188,6 +213,20 @@ public sealed class PackageCardMock
     public int IconFontSize { get; init; } = 18;
     public string BorderBrush { get; init; } = "#DFE6EF";
     public string BorderThickness { get; init; } = "1";
+    public bool IsSelected
+    {
+        get => isSelected;
+        set
+        {
+            if (isSelected == value) return;
+            isSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardBorderBrush)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardBorderThickness)));
+        }
+    }
+    public string CardBorderBrush => IsSelected ? "#147BD1" : BorderBrush;
+    public string CardBorderThickness => IsSelected ? "2" : BorderThickness;
 
     public static PackageCardMock FromSearchResult(PackageSearchResult result)
     {

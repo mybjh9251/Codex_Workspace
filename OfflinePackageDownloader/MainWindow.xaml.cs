@@ -27,8 +27,8 @@ public partial class MainWindow : Window
     private void ApplyInitialWindowBounds()
     {
         var workArea = SystemParameters.WorkArea;
-        Width = Math.Min(workArea.Width * 0.94, workArea.Width - 80);
-        Height = Math.Min(workArea.Height * 0.90, workArea.Height - 80);
+        Width = Math.Min(1320, workArea.Width - 80);
+        Height = Math.Min(875, workArea.Height - 80);
         Left = workArea.Left + (workArea.Width - Width) / 2;
         Top = workArea.Top + (workArea.Height - Height) / 2;
     }
@@ -135,6 +135,7 @@ public sealed partial class MainWindowViewModel : INotifyPropertyChanged
         {
             model.SearchResults.Add(item);
         }
+        model.SearchResults[0].IsSelected = true;
 
         model.AddedPackages.Add(new AddedPackageMock(".NET", "#5B2DD1", "Microsoft.Extensions.Configuration.Json", "8.0.0", "8.0.0", 3, "Ready"));
         model.AddedPackages.Add(new AddedPackageMock("{}{ }", "#1468A8", "Newtonsoft.Json", "13.0.3", "13.0.3", 0, "Ready"));
@@ -175,7 +176,12 @@ public sealed record AddedPackageMock(
     string RequestedVersion,
     string ResolvedVersion,
     int DependencyCount,
-    string Status);
+    string Status)
+{
+    public string DisplayPackageId => string.Equals(PackageId, "Microsoft.Extensions.Configuration.Json", StringComparison.Ordinal)
+        ? "Microsoft.Extensions.\nConfiguration.Json"
+        : PackageId;
+}
 
 public sealed class SelectedPackageMock
 {
@@ -223,10 +229,12 @@ public sealed class PackageCardMock : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardBorderBrush)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardBorderThickness)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardBackground)));
         }
     }
     public string CardBorderBrush => IsSelected ? "#147BD1" : BorderBrush;
     public string CardBorderThickness => IsSelected ? "2" : BorderThickness;
+    public string CardBackground => IsSelected ? "#F7FBFF" : "White";
 
     public static PackageCardMock FromSearchResult(PackageSearchResult result)
     {

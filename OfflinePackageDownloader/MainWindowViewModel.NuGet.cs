@@ -17,6 +17,7 @@ public sealed partial class MainWindowViewModel
     private bool isFilterPopupOpen;
     private bool microsoftPublisherOnly;
     private bool isSelectedPackageExpanded = true;
+    private bool hasSearched;
     private int currentPage = 1;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -69,12 +70,12 @@ public sealed partial class MainWindowViewModel
 
     public string SelectedPackageToggleGlyph => IsSelectedPackageExpanded ? "⌃" : "⌄";
 
-    public bool HasPreviousPage => currentPage > 1;
-    public bool HasNextPage => currentPage < TotalPages;
-    public string CurrentPageText => currentPage.ToString();
-    public string NextPageText => Math.Min(currentPage + 1, TotalPages).ToString();
-    public string FollowingPageText => Math.Min(currentPage + 2, TotalPages).ToString();
-    public string TotalPagesText => TotalPages.ToString();
+    public bool HasPreviousPage => hasSearched && currentPage > 1;
+    public bool HasNextPage => !hasSearched || currentPage < TotalPages;
+    public string CurrentPageText => hasSearched ? currentPage.ToString() : "1";
+    public string NextPageText => hasSearched ? Math.Min(currentPage + 1, TotalPages).ToString() : "2";
+    public string FollowingPageText => hasSearched ? Math.Min(currentPage + 2, TotalPages).ToString() : "3";
+    public string TotalPagesText => hasSearched ? TotalPages.ToString() : "103";
     private int TotalPages => Math.Max(1, (FilteredResults().Count() + PageSize - 1) / PageSize);
 
     public async Task SearchAsync()
@@ -93,6 +94,7 @@ public sealed partial class MainWindowViewModel
         try
         {
             var results = await NuGetSearchClient.SearchAsync(query, 60, CancellationToken.None);
+            hasSearched = true;
             allSearchResults.Clear();
             allSearchResults.AddRange(results.Select(PackageCardMock.FromSearchResult));
             currentPage = 1;
@@ -114,6 +116,7 @@ public sealed partial class MainWindowViewModel
     public void ClearSearch()
     {
         SearchText = string.Empty;
+        hasSearched = false;
         ResultCountText = "Enter a package name to search NuGet";
         PageSummaryText = string.Empty;
         allSearchResults.Clear();

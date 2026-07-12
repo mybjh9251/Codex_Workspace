@@ -13,10 +13,14 @@
                  StretchDirection="Both"
                  HorizontalAlignment="Stretch"
                  VerticalAlignment="Stretch"
+                 UseLayoutRounding="True"
+                 SnapsToDevicePixels="True"
+                 TextOptions.TextFormattingMode="Display"
+                 TextOptions.TextRenderingMode="ClearType"
                  ClipToBounds="True">
             <Grid Width="1800" Height="1120" Background="#F4F7FB">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="118" />
+                    <RowDefinition Height="90" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="96" />
                 </Grid.RowDefinitions>
@@ -55,7 +59,7 @@
 
                 <Grid Grid.Row="1" Margin="28,22,28,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="980" />
+                        <ColumnDefinition Width="1020" />
                         <ColumnDefinition Width="22" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
@@ -69,12 +73,12 @@
 
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="500" />
+                                <ColumnDefinition Width="525" />
                                 <ColumnDefinition Width="20" />
                                 <ColumnDefinition Width="120" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="86" />
-                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="220" />
                             </Grid.ColumnDefinitions>
 
                             <Border Height="48"
@@ -107,7 +111,12 @@
                                     Click="FilterButton_Click"
                                     VerticalAlignment="Top">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="▽" FontSize="20" Margin="0,0,8,0" />
+                                    <Viewbox Width="20" Height="20" Margin="0,0,8,0">
+                                        <Path Data="M2,2 L18,2 12,9 12,16 8,18 8,9 Z"
+                                              Stroke="#293241"
+                                              StrokeThickness="1.7"
+                                              StrokeLineJoin="Round" />
+                                    </Viewbox>
                                     <TextBlock Text="Filters" />
                                 </StackPanel>
                             </Button>
@@ -185,7 +194,7 @@
 
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="500" />
                             <RowDefinition Height="18" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
@@ -354,7 +363,7 @@
 
                 <Border Grid.Row="2"
                         Style="{StaticResource MockupPanelBorder}"
-                        Margin="28,10,28,22">
+                        Margin="28,10,28,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="210" />
@@ -388,26 +397,18 @@
                                         Content="{Binding SummaryMetrics[4]}"
                                         ContentTemplate="{StaticResource SummaryMetricTemplate}" />
 
-                        <StackPanel Grid.Column="9"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,24,0">
-                            <Button Width="132"
-                                    Height="52"
-                                    Margin="0,0,12,0"
-                                    Style="{StaticResource MockupPlainButton}"
-                                    Click="PreviewButton_Click"
-                                    Content="Preview" />
-                            <Button Width="230"
-                                    Height="52"
-                                    Style="{StaticResource MockupPrimaryButton}"
-                                    Click="DownloadButton_Click">
+                        <Button Grid.Column="9"
+                                Width="230"
+                                Height="52"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,24,0"
+                                Style="{StaticResource MockupPrimaryButton}"
+                                Click="DownloadButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="⇩" FontSize="27" Margin="0,0,10,0" />
                                 <TextBlock Text="Download" FontSize="19" VerticalAlignment="Center" />
                             </StackPanel>
-                            </Button>
-                        </StackPanel>
+                        </Button>
                     </Grid>
                 </Border>
             </Grid>

@@ -28,7 +28,7 @@
         <Setter Property="BorderBrush" Value="#D8E0EA" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="#293241" />
-        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontSize" Value="19" />
         <Setter Property="Padding" Value="16,8" />
         <Setter Property="Template">
             <Setter.Value>

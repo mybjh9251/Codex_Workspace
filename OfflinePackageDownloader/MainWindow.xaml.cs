@@ -266,9 +266,7 @@ public sealed class PackageCardMock : INotifyPropertyChanged
                 Description = "JSON configuration provider implementation for Microsoft Extensions Configuration.",
                 MetadataText = "⇩ 241.3M     ◇ v8.0.0",
                 IconText = ".NET",
-                IconBackground = "#5B2DD1",
-                BorderBrush = "#2E8BEF",
-                BorderThickness = "2"
+                IconBackground = "#5B2DD1"
             },
             new PackageCardMock
             {

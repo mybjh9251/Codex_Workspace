@@ -12,13 +12,10 @@ namespace OfflinePackageDownloader;
 
 public sealed partial class MainWindowViewModel
 {
-    private const int PageSize = 12;
     private readonly List<PackageCardMock> allSearchResults = new();
     private bool isFilterPopupOpen;
     private bool microsoftPublisherOnly;
     private bool isSelectedPackageExpanded = true;
-    private bool hasSearched;
-    private int currentPage = 1;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -50,7 +47,6 @@ public sealed partial class MainWindowViewModel
         {
             if (microsoftPublisherOnly == value) return;
             microsoftPublisherOnly = value;
-            currentPage = 1;
             OnPropertyChanged();
             ApplySearchResultView();
         }
@@ -70,14 +66,6 @@ public sealed partial class MainWindowViewModel
 
     public string SelectedPackageToggleGlyph => IsSelectedPackageExpanded ? "⌃" : "⌄";
 
-    public bool HasPreviousPage => hasSearched && currentPage > 1;
-    public bool HasNextPage => !hasSearched || currentPage < TotalPages;
-    public string CurrentPageText => hasSearched ? currentPage.ToString() : "1";
-    public string NextPageText => hasSearched ? Math.Min(currentPage + 1, TotalPages).ToString() : "2";
-    public string FollowingPageText => hasSearched ? Math.Min(currentPage + 2, TotalPages).ToString() : "3";
-    public string TotalPagesText => hasSearched ? TotalPages.ToString() : "103";
-    private int TotalPages => Math.Max(1, (FilteredResults().Count() + PageSize - 1) / PageSize);
-
     public async Task SearchAsync()
     {
         var query = SearchText.Trim();
@@ -88,16 +76,13 @@ public sealed partial class MainWindowViewModel
         }
 
         ResultCountText = $"Searching NuGet for \"{query}\"...";
-        PageSummaryText = string.Empty;
         RaiseDisplayProperties();
 
         try
         {
             var results = await NuGetSearchClient.SearchAsync(query, 60, CancellationToken.None);
-            hasSearched = true;
             allSearchResults.Clear();
             allSearchResults.AddRange(results.Select(PackageCardMock.FromSearchResult));
-            currentPage = 1;
             ApplySearchResultView();
             if (SearchResults.Count > 0)
             {
@@ -108,7 +93,7 @@ public sealed partial class MainWindowViewModel
         catch (Exception ex)
         {
             ResultCountText = "NuGet search could not be completed";
-            PageSummaryText = ex.Message;
+            ResultCountText = $"NuGet search failed: {ex.Message}";
         }
 
         RaiseDisplayProperties();
@@ -117,9 +102,7 @@ public sealed partial class MainWindowViewModel
     public void ClearSearch()
     {
         SearchText = string.Empty;
-        hasSearched = false;
         ResultCountText = "Enter a package name to search NuGet";
-        PageSummaryText = string.Empty;
         allSearchResults.Clear();
         SearchResults.Clear();
         RaiseDisplayProperties();
@@ -155,20 +138,6 @@ public sealed partial class MainWindowViewModel
     public void ToggleFilterPopup() => IsFilterPopupOpen = !IsFilterPopupOpen;
 
     public void ToggleSelectedPackageExpanded() => IsSelectedPackageExpanded = !IsSelectedPackageExpanded;
-
-    public void PreviousPage()
-    {
-        if (!HasPreviousPage) return;
-        currentPage--;
-        ApplySearchResultView();
-    }
-
-    public void NextPage()
-    {
-        if (!HasNextPage) return;
-        currentPage++;
-        ApplySearchResultView();
-    }
 
     public void Add(PackageCardMock package)
     {
@@ -234,15 +203,16 @@ public sealed partial class MainWindowViewModel
 
     private async Task LoadIconsAsync(IEnumerable<PackageCardMock> packages)
     {
-        var packageList = packages.ToList();
-        await Task.WhenAll(packageList.Select(package => package.LoadIconAsync(CancellationToken.None)));
+        await Task.WhenAll(packages.Select(LoadIconAndRefreshAsync));
+    }
 
-        foreach (var package in packageList)
-        {
-            if (package.IconImage is null) continue;
-            UpdateAddedPackageIcon(package);
-            if (package.IsSelected) Select(package);
-        }
+    private async Task LoadIconAndRefreshAsync(PackageCardMock package)
+    {
+        await package.LoadIconAsync(CancellationToken.None);
+        if (package.IconImage is null) return;
+
+        UpdateAddedPackageIcon(package);
+        if (package.IsSelected) Select(package);
     }
 
     private void UpdateAddedPackageIcon(PackageCardMock package)
@@ -272,7 +242,6 @@ public sealed partial class MainWindowViewModel
     {
         OnPropertyChanged(nameof(SearchText));
         OnPropertyChanged(nameof(ResultCountText));
-        OnPropertyChanged(nameof(PageSummaryText));
     }
 
     private IEnumerable<PackageCardMock> FilteredResults()
@@ -294,9 +263,8 @@ public sealed partial class MainWindowViewModel
     private void ApplySearchResultView()
     {
         var filtered = FilteredResults().ToList();
-        currentPage = Math.Clamp(currentPage, 1, Math.Max(1, (filtered.Count + PageSize - 1) / PageSize));
         SearchResults.Clear();
-        foreach (var item in filtered.Skip((currentPage - 1) * PageSize).Take(PageSize))
+        foreach (var item in filtered)
         {
             SearchResults.Add(item);
         }
@@ -304,15 +272,6 @@ public sealed partial class MainWindowViewModel
         ResultCountText = string.IsNullOrWhiteSpace(SearchText)
             ? "Enter a package name to search NuGet"
             : $"{filtered.Count:N0} results for \"{SearchText}\"";
-        var start = filtered.Count == 0 ? 0 : (currentPage - 1) * PageSize + 1;
-        var end = Math.Min(currentPage * PageSize, filtered.Count);
-        PageSummaryText = filtered.Count == 0 ? "No packages found" : $"Showing {start} - {end} of {filtered.Count:N0}";
-        OnPropertyChanged(nameof(HasPreviousPage));
-        OnPropertyChanged(nameof(HasNextPage));
-        OnPropertyChanged(nameof(CurrentPageText));
-        OnPropertyChanged(nameof(NextPageText));
-        OnPropertyChanged(nameof(FollowingPageText));
-        OnPropertyChanged(nameof(TotalPagesText));
         RaiseDisplayProperties();
     }
 

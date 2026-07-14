@@ -67,7 +67,7 @@
                     <Grid Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="62" />
-                            <RowDefinition Height="52" />
+                            <RowDefinition Height="42" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
@@ -155,6 +155,7 @@
                             <TextBlock Text="{Binding ResultCountText}"
                                        Style="{StaticResource SearchSummaryText}" />
                             <StackPanel Orientation="Horizontal"
+                                        Visibility="Collapsed"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding PageSummaryText}"
@@ -165,7 +166,6 @@
                                         Margin="0,0,18,0"
                                         Content="‹"
                                         IsEnabled="{Binding HasPreviousPage}"
-                                        Click="PreviousPageButton_Click" />
                                 <Border Style="{StaticResource PageNumberBorder}" Margin="0,0,16,0">
                                     <TextBlock Text="{Binding CurrentPageText}" Style="{StaticResource ActivePageText}" />
                                 </Border>
@@ -176,11 +176,14 @@
                                 <Button Style="{StaticResource PagerButton}"
                                         Content="›"
                                         IsEnabled="{Binding HasNextPage}"
-                                        Click="NextPageButton_Click" />
                             </StackPanel>
                         </Grid>
 
-                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                        <ScrollViewer Grid.Row="2"
+                                      VerticalScrollBarVisibility="Visible"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      PanningMode="VerticalOnly"
+                                      PreviewMouseWheel="SearchResultsScrollViewer_PreviewMouseWheel">
                             <ItemsControl ItemsSource="{Binding SearchResults}"
                                           ItemTemplate="{StaticResource PackageCardTemplate}">
                                 <ItemsControl.ItemsPanel>
@@ -358,10 +361,11 @@
                                 </Grid>
                                 </Border>
                                 <ScrollViewer Grid.Row="2"
-                                              VerticalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Visible"
                                               HorizontalScrollBarVisibility="Disabled"
                                               CanContentScroll="True"
-                                              PanningMode="VerticalOnly">
+                                              PanningMode="VerticalOnly"
+                                              PreviewMouseWheel="AddedPackagesScrollViewer_PreviewMouseWheel">
                                     <ItemsControl ItemsSource="{Binding AddedPackages}"
                                                   ItemTemplate="{StaticResource AddedPackageRowTemplate}" />
                                 </ScrollViewer>

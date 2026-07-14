@@ -46,9 +46,9 @@ public partial class MainWindow : Window
     {
         if (sender is ComboBox { SelectedItem: string sortLabel }) viewModel.SortLabel = sortLabel;
     }
-    private void PreviousPageButton_Click(object sender, RoutedEventArgs e) => viewModel.PreviousPage();
-    private void NextPageButton_Click(object sender, RoutedEventArgs e) => viewModel.NextPage();
     private void SelectedPackageToggleButton_Click(object sender, RoutedEventArgs e) => viewModel.ToggleSelectedPackageExpanded();
+    private void SearchResultsScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e) => ScrollByMouseWheel(sender, e);
+    private void AddedPackagesScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e) => ScrollByMouseWheel(sender, e);
 
     private void ClearAddedPackagesButton_Click(object sender, RoutedEventArgs e) => viewModel.ClearAddedPackages();
 
@@ -73,6 +73,13 @@ public partial class MainWindow : Window
             MessageBox.Show(this, ex.Message, "NuGet operation", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private static void ScrollByMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not ScrollViewer scrollViewer) return;
+        scrollViewer.ScrollToVerticalOffset(Math.Max(0, scrollViewer.VerticalOffset - e.Delta));
+        e.Handled = true;
+    }
 }
 
 public sealed partial class MainWindowViewModel : INotifyPropertyChanged
@@ -91,7 +98,6 @@ public sealed partial class MainWindowViewModel : INotifyPropertyChanged
         }
     }
     public string ResultCountText { get; set; } = string.Empty;
-    public string PageSummaryText { get; set; } = string.Empty;
     public ObservableCollection<string> SortOptions { get; } = new() { "Relevance", "Downloads", "Package ID" };
     public string AddedPackagesTitle => $"Added Packages ({AddedPackages.Count})";
     public ObservableCollection<ProviderTabMock> ProviderTabs { get; } = new();
@@ -106,7 +112,6 @@ public sealed partial class MainWindowViewModel : INotifyPropertyChanged
         {
             SearchText = "configuration json",
             ResultCountText = "1,234 results for “configuration json”",
-            PageSummaryText = "Showing 1 – 12 of 1,234",
             SelectedPackage = new SelectedPackageMock
             {
                 IconText = ".NET",
@@ -282,7 +287,7 @@ public sealed class PackageCardMock : INotifyPropertyChanged
 
     public string EffectivePackageId => string.IsNullOrWhiteSpace(PackageId) ? string.Concat(TitleLine1, TitleLine2) : PackageId;
 
-    public async Task LoadIconAsync(CancellationToken cancellationToken) => IconImage = await PackageIconLoader.LoadAsync(IconUrl, cancellationToken);
+    public async Task LoadIconAsync(CancellationToken cancellationToken) => IconImage = await PackageIconLoader.LoadAsync(EffectivePackageId, LatestVersion, IconUrl, cancellationToken);
 
     public static IReadOnlyList<PackageCardMock> CreateDefaults()
     {

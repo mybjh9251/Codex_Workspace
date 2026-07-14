@@ -165,7 +165,7 @@
                                 <Button Style="{StaticResource PagerButton}"
                                         Margin="0,0,18,0"
                                         Content="‹"
-                                        IsEnabled="{Binding HasPreviousPage}"
+                                        IsEnabled="{Binding HasPreviousPage}" />
                                 <Border Style="{StaticResource PageNumberBorder}" Margin="0,0,16,0">
                                     <TextBlock Text="{Binding CurrentPageText}" Style="{StaticResource ActivePageText}" />
                                 </Border>
@@ -175,7 +175,7 @@
                                 <TextBlock Text="{Binding TotalPagesText}" FontSize="16" Foreground="#465366" Margin="0,0,20,0" VerticalAlignment="Center" />
                                 <Button Style="{StaticResource PagerButton}"
                                         Content="›"
-                                        IsEnabled="{Binding HasNextPage}"
+                                        IsEnabled="{Binding HasNextPage}" />
                             </StackPanel>
                         </Grid>
 

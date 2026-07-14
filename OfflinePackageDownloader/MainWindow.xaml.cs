@@ -199,6 +199,7 @@ public sealed class SelectedPackageMock
 
 public sealed class PackageCardMock : INotifyPropertyChanged
 {
+    private const int DescriptionPreviewLength = 100;
     private bool isSelected;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -212,6 +213,9 @@ public sealed class PackageCardMock : INotifyPropertyChanged
     public string TitleLine2 { get; init; } = string.Empty;
     public string PublisherText { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
+    public string DescriptionPreview => Description.Length <= DescriptionPreviewLength
+        ? Description
+        : $"{Description[..DescriptionPreviewLength].TrimEnd()}...";
     public string MetadataText { get; init; } = string.Empty;
     public string IconText { get; init; } = string.Empty;
     public string IconBackground { get; init; } = "#5B2DD1";

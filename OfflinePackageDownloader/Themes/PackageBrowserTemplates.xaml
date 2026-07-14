@@ -78,8 +78,12 @@
                 </StackPanel>
 
                 <TextBlock Grid.Row="1"
-                           Text="{Binding Description}"
-                           Style="{StaticResource MockupBodyText}" />
+                           Text="{Binding DescriptionPreview}"
+                           Style="{StaticResource MockupBodyText}"
+                           MaxHeight="78"
+                           TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Top" />
 
                 <Grid Grid.Row="2">
                     <TextBlock Text="{Binding MetadataText}"

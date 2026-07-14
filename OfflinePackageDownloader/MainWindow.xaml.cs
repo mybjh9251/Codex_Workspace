@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace OfflinePackageDownloader;
 
@@ -137,9 +138,9 @@ public sealed partial class MainWindowViewModel : INotifyPropertyChanged
         }
         model.SearchResults[0].IsSelected = true;
 
-        model.AddedPackages.Add(new AddedPackageMock(".NET", "#5B2DD1", "Microsoft.Extensions.Configuration.Json", "8.0.0", "8.0.0", 3, "Ready"));
-        model.AddedPackages.Add(new AddedPackageMock("{}{ }", "#1468A8", "Newtonsoft.Json", "13.0.3", "13.0.3", 0, "Ready"));
-        model.AddedPackages.Add(new AddedPackageMock("≡", "#0E8388", "System.Text.Json", "8.0.0", "8.0.0", 1, "Ready"));
+        model.AddedPackages.Add(new AddedPackageMock(".NET", "#5B2DD1", null, "Microsoft.Extensions.Configuration.Json", "8.0.0", "8.0.0", 3, "Ready"));
+        model.AddedPackages.Add(new AddedPackageMock("{}{ }", "#1468A8", null, "Newtonsoft.Json", "13.0.3", "13.0.3", 0, "Ready"));
+        model.AddedPackages.Add(new AddedPackageMock("≡", "#0E8388", null, "System.Text.Json", "8.0.0", "8.0.0", 1, "Ready"));
 
         model.SummaryMetrics.Add(new SummaryMetricMock("⌘", "Roots", "3", "#111827", "34,0,0,0"));
         model.SummaryMetrics.Add(new SummaryMetricMock("⬡", "Dependencies", "4", "#111827", "58,0,0,0"));
@@ -172,6 +173,7 @@ public sealed record SummaryMetricMock(
 public sealed record AddedPackageMock(
     string IconText,
     string IconBackground,
+    ImageSource? IconImage,
     string PackageId,
     string RequestedVersion,
     string ResolvedVersion,
@@ -187,6 +189,7 @@ public sealed class SelectedPackageMock
 {
     public string IconText { get; init; } = string.Empty;
     public string IconBackground { get; init; } = "#5B2DD1";
+    public ImageSource? IconImage { get; init; }
     public string PackageId { get; init; } = string.Empty;
     public string PublisherText { get; init; } = string.Empty;
     public string LatestVersion { get; init; } = string.Empty;
@@ -201,6 +204,7 @@ public sealed class PackageCardMock : INotifyPropertyChanged
 {
     private const int DescriptionPreviewLength = 100;
     private bool isSelected;
+    private ImageSource? iconImage;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -219,6 +223,17 @@ public sealed class PackageCardMock : INotifyPropertyChanged
     public string MetadataText { get; init; } = string.Empty;
     public string IconText { get; init; } = string.Empty;
     public string IconBackground { get; init; } = "#5B2DD1";
+    public string IconUrl { get; init; } = string.Empty;
+    public ImageSource? IconImage
+    {
+        get => iconImage;
+        private set
+        {
+            if (ReferenceEquals(iconImage, value)) return;
+            iconImage = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconImage)));
+        }
+    }
     public string IconForeground { get; init; } = "White";
     public int IconFontSize { get; init; } = 18;
     public string BorderBrush { get; init; } = "#DFE6EF";
@@ -256,6 +271,7 @@ public sealed class PackageCardMock : INotifyPropertyChanged
             MetadataText = $"{result.DownloadsText}     v{result.LatestVersion}",
             IconText = result.IconText,
             IconBackground = result.IconBackground,
+            IconUrl = result.IconUrl,
             IconFontSize = result.IconText == ".NET" ? 16 : 26,
             LatestVersion = string.IsNullOrWhiteSpace(result.LatestVersion) ? "latest" : result.LatestVersion,
             DownloadsText = result.Downloads > 0 ? result.Downloads.ToString("N0") : "-",
@@ -265,6 +281,8 @@ public sealed class PackageCardMock : INotifyPropertyChanged
     }
 
     public string EffectivePackageId => string.IsNullOrWhiteSpace(PackageId) ? string.Concat(TitleLine1, TitleLine2) : PackageId;
+
+    public async Task LoadIconAsync(CancellationToken cancellationToken) => IconImage = await PackageIconLoader.LoadAsync(IconUrl, cancellationToken);
 
     public static IReadOnlyList<PackageCardMock> CreateDefaults()
     {

@@ -30,6 +30,7 @@ public sealed class PackageSearchResult
     public long Downloads { get; init; }
     public string License { get; init; } = string.Empty;
     public string ProjectUrl { get; init; } = string.Empty;
+    public string IconUrl { get; init; } = string.Empty;
     public string IconText
     {
         get
@@ -87,6 +88,7 @@ public static class NuGetSearchClient
             var authors = package.TryGetProperty("authors", out var authorsElement) ? ReadText(authorsElement) : string.Empty;
             var license = package.TryGetProperty("licenseExpression", out var licenseElement) ? licenseElement.GetString() ?? string.Empty : string.Empty;
             var projectUrl = package.TryGetProperty("projectUrl", out var projectUrlElement) ? projectUrlElement.GetString() ?? string.Empty : string.Empty;
+            var iconUrl = package.TryGetProperty("iconUrl", out var iconUrlElement) ? iconUrlElement.GetString() ?? string.Empty : string.Empty;
             var downloads = package.TryGetProperty("totalDownloads", out var downloadsElement) && downloadsElement.TryGetInt64(out var parsedDownloads) ? parsedDownloads : 0;
 
             return new PackageSearchResult
@@ -99,7 +101,8 @@ public static class NuGetSearchClient
                 LatestVersion = version,
                 Downloads = downloads,
                 License = string.IsNullOrWhiteSpace(license) ? "Unknown" : license,
-                ProjectUrl = projectUrl
+                ProjectUrl = projectUrl,
+                IconUrl = iconUrl
             };
         }).Where(item => !string.IsNullOrWhiteSpace(item.PackageId)).ToList();
     }

@@ -50,12 +50,16 @@
                 <StackPanel Orientation="Horizontal">
                     <Border Style="{StaticResource MockupIconTile}"
                             Background="{Binding IconBackground}">
-                        <TextBlock Text="{Binding IconText}"
-                                   Foreground="{Binding IconForeground}"
-                                   FontSize="{Binding IconFontSize}"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                        <Grid>
+                            <TextBlock Text="{Binding IconText}"
+                                       Foreground="{Binding IconForeground}"
+                                       FontSize="{Binding IconFontSize}"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <Image Source="{Binding IconImage}"
+                                   Stretch="Uniform" />
+                        </Grid>
                     </Border>
                     <StackPanel Margin="14,0,0,0">
                         <TextBlock Text="{Binding TitleLine1}"
@@ -124,12 +128,16 @@
                         Height="32"
                         Background="{Binding IconBackground}"
                         CornerRadius="4">
-                    <TextBlock Text="{Binding IconText}"
-                               FontSize="12"
-                               FontWeight="Bold"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
+                    <Grid>
+                        <TextBlock Text="{Binding IconText}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        <Image Source="{Binding IconImage}"
+                               Stretch="Uniform" />
+                    </Grid>
                 </Border>
                 <TextBlock Text="{Binding DisplayPackageId}"
                            Margin="12,0,0,0"

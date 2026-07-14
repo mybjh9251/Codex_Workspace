@@ -103,6 +103,7 @@ public sealed partial class MainWindowViewModel
             {
                 Select(SearchResults[0]);
             }
+            _ = LoadIconsAsync(allSearchResults);
         }
         catch (Exception ex)
         {
@@ -135,6 +136,7 @@ public sealed partial class MainWindowViewModel
         {
             IconText = package.IconText,
             IconBackground = package.IconBackground,
+            IconImage = package.IconImage,
             PackageId = package.EffectivePackageId,
             PublisherText = package.PublisherText,
             LatestVersion = package.LatestVersion,
@@ -177,7 +179,7 @@ public sealed partial class MainWindowViewModel
             return;
         }
 
-        AddedPackages.Add(new AddedPackageMock(package.IconText, package.IconBackground, packageId, package.LatestVersion, package.LatestVersion, 0, "Ready"));
+        AddedPackages.Add(new AddedPackageMock(package.IconText, package.IconBackground, package.IconImage, packageId, package.LatestVersion, package.LatestVersion, 0, "Ready"));
         UpdateSummary("Ready");
         OnPropertyChanged(nameof(AddedPackagesTitle));
     }
@@ -227,6 +229,29 @@ public sealed partial class MainWindowViewModel
                 Status = record.Status
             };
             return;
+        }
+    }
+
+    private async Task LoadIconsAsync(IEnumerable<PackageCardMock> packages)
+    {
+        var packageList = packages.ToList();
+        await Task.WhenAll(packageList.Select(package => package.LoadIconAsync(CancellationToken.None)));
+
+        foreach (var package in packageList)
+        {
+            if (package.IconImage is null) continue;
+            UpdateAddedPackageIcon(package);
+            if (package.IsSelected) Select(package);
+        }
+    }
+
+    private void UpdateAddedPackageIcon(PackageCardMock package)
+    {
+        for (var index = 0; index < AddedPackages.Count; index++)
+        {
+            var item = AddedPackages[index];
+            if (!string.Equals(item.PackageId, package.EffectivePackageId, StringComparison.OrdinalIgnoreCase)) continue;
+            AddedPackages[index] = item with { IconImage = package.IconImage };
         }
     }
 
